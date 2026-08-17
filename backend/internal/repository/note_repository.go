@@ -29,3 +29,20 @@ func (r *NoteRepository) FindAll() ([]model.Note, error) {
 
 	return notes, err
 }
+
+func (r *NoteRepository) FindByID(id uint) (*model.Note, error) {
+
+	var note model.Note
+
+	// SELECT *
+	// FROM notes
+	// WHERE id = 1
+	// LIMIT 1;
+	err := r.DB.First(&note, id).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &note, nil
+}

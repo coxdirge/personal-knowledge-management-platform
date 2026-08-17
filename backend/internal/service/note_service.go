@@ -35,3 +35,11 @@ func (s *NoteService) GetNotes() (
 	return s.Repo.FindAll()
 
 }
+
+func (s *NoteService) GetNoteByID(
+	id uint,
+) (*model.Note, error) {
+
+	return s.Repo.FindByID(id)
+
+}

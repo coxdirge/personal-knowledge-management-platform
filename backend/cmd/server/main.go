@@ -96,6 +96,16 @@ func main() {
 			noteHandler.CreateNote,
 		)
 
+		api.GET(
+			"/notes",
+			noteHandler.GetNotes,
+		)
+
+		api.GET(
+			"/notes/:id",
+			noteHandler.GetNoteByID,
+		)
+
 	}
 
 	// 测试接口

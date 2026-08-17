@@ -3,13 +3,13 @@ package model
 import "time"
 
 type Note struct {
-	ID uint `gorm:"primaryKey"`
+	ID uint `gorm:"primaryKey" json:"id"`
 
-	Title string
+	Title string `json:"title"`
 
-	Content string
+	Content string `json:"content"`
 
-	CreatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
 
-	UpdatedAt time.Time
+	UpdatedAt time.Time `json:"updated_at"`
 }

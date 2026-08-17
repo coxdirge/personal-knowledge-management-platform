@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -55,6 +56,74 @@ func (h *NoteHandler) CreateNote(c *gin.Context) {
 
 	c.JSON(
 		http.StatusCreated,
+		note,
+	)
+
+}
+
+func (h *NoteHandler) GetNotes(c *gin.Context) {
+
+	notes, err := h.Service.GetNotes()
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		notes,
+	)
+
+}
+
+func (h *NoteHandler) GetNoteByID(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.ParseUint(
+		idParam,
+		10,
+		64,
+	)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "invalid id",
+			},
+		)
+
+		return
+	}
+
+	note, err := h.Service.GetNoteByID(
+		uint(id),
+	)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": "note not found",
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
 		note,
 	)
 
