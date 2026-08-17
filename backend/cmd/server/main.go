@@ -5,9 +5,26 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/database"
+	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/model"
 )
 
 func main() {
+	err := database.Connect()
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = database.DB.AutoMigrate(
+		&model.Note{},
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
 	r := gin.Default()
 
 	// CORS 配置
