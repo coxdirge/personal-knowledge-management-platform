@@ -128,3 +128,109 @@ func (h *NoteHandler) GetNoteByID(c *gin.Context) {
 	)
 
 }
+
+func (h *NoteHandler) UpdateNote(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.ParseUint(
+		idParam,
+		10,
+		64,
+	)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "invalid id",
+			},
+		)
+
+		return
+	}
+
+	var note model.Note
+
+	if err := c.ShouldBindJSON(&note); err != nil {
+
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": err.Error(),
+			},
+		)
+
+		return
+	}
+
+	note.ID = uint(id)
+
+	err = h.Service.UpdateNote(&note)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		note,
+	)
+
+}
+
+func (h *NoteHandler) DeleteNote(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.ParseUint(
+		idParam,
+		10,
+		64,
+	)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "invalid id",
+			},
+		)
+
+		return
+	}
+
+	err = h.Service.DeleteNote(
+		uint(id),
+	)
+
+	if err != nil {
+
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"message": "note deleted",
+		},
+	)
+
+}

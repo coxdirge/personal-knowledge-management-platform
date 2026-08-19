@@ -106,6 +106,16 @@ func main() {
 			noteHandler.GetNoteByID,
 		)
 
+		api.PUT(
+			"/notes/:id",
+			noteHandler.UpdateNote,
+		)
+
+		api.DELETE(
+			"/notes/:id",
+			noteHandler.DeleteNote,
+		)
+
 	}
 
 	// 测试接口

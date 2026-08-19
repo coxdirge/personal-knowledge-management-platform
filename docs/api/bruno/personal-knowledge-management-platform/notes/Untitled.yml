@@ -1,0 +1,26 @@
+info:
+  name: Untitled
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/notes?Create Note"
+  params:
+    - name: Create Note
+      value: ""
+      type: query
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Bruno Test",
+        "content": "Created from Bruno"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

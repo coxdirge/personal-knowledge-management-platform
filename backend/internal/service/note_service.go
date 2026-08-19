@@ -43,3 +43,19 @@ func (s *NoteService) GetNoteByID(
 	return s.Repo.FindByID(id)
 
 }
+
+func (s *NoteService) UpdateNote(
+	note *model.Note,
+) error {
+
+	return s.Repo.Update(note)
+
+}
+
+func (s *NoteService) DeleteNote(
+	id uint,
+) error {
+
+	return s.Repo.Delete(id)
+
+}

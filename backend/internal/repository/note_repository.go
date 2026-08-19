@@ -46,3 +46,20 @@ func (r *NoteRepository) FindByID(id uint) (*model.Note, error) {
 
 	return &note, nil
 }
+
+func (r *NoteRepository) Update(note *model.Note) error {
+
+	return r.DB.Save(note).Error
+
+}
+
+func (r *NoteRepository) Delete(id uint) error {
+
+	// DELETE FROM notes
+	// WHERE id=3;
+	return r.DB.Delete(
+		&model.Note{},
+		id,
+	).Error
+
+}
