@@ -1,0 +1,22 @@
+info:
+  name: Update Note
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/notes/{{noteId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title":"Updated by Bruno",
+        "content":"Testing PUT request"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

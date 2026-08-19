@@ -1,15 +1,11 @@
 info:
-  name: Untitled
+  name: Create Note
   type: http
   seq: 1
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/notes?Create Note"
-  params:
-    - name: Create Note
-      value: ""
-      type: query
+  url: "{{baseUrl}}/api/notes"
   body:
     type: json
     data: |-

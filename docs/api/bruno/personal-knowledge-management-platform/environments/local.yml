@@ -3,3 +3,6 @@ variables:
   - name: baseUrl
     value: http://localhost:8080
     description: ""
+  - name: noteId
+    value: "1"
+    description: "笔记ID"
