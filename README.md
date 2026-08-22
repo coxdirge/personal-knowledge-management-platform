@@ -89,6 +89,13 @@
 | PostgreSQL | 数据库 |
 
 
+## API Testing
+
+Bruno collection is provided in:
+
+docs/api/bruno
+
+
 ## Additional
 
 | Technology | Purpose |

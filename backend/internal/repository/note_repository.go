@@ -25,7 +25,10 @@ func (r *NoteRepository) FindAll() ([]model.Note, error) {
 
 	var notes []model.Note
 
-	err := r.DB.Find(&notes).Error
+	err := r.DB.
+		Order("updated_at DESC").
+		Find(&notes).
+		Error
 
 	return notes, err
 }

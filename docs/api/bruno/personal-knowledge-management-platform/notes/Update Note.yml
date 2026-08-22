@@ -10,8 +10,7 @@ http:
     type: json
     data: |-
       {
-        "title":"Updated by Bruno",
-        "content":"Testing PUT request"
+        "title":"go"
       }
   auth: inherit
 

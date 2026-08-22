@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/model"
+	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/dto"
+	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/response"
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/service"
 )
 
@@ -26,37 +28,36 @@ func NewNoteHandler(
 
 func (h *NoteHandler) CreateNote(c *gin.Context) {
 
-	var note model.Note
+	var req dto.CreateNoteRequest
 
-	if err := c.ShouldBindJSON(&note); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusBadRequest,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	err := h.Service.CreateNote(&note)
+	note, err := h.Service.CreateNote(req)
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusInternalServerError,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	c.JSON(
+	response.Success(
+		c,
 		http.StatusCreated,
-		note,
+		dto.ToNoteResponse(note),
 	)
 
 }
@@ -67,19 +68,25 @@ func (h *NoteHandler) GetNotes(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusInternalServerError,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	c.JSON(
+	responses := make([]dto.NoteResponse, len(notes))
+
+	for i := range notes {
+		responses[i] = dto.ToNoteResponse(&notes[i])
+	}
+
+	response.Success(
+		c,
 		http.StatusOK,
-		notes,
+		responses,
 	)
 
 }
@@ -96,11 +103,10 @@ func (h *NoteHandler) GetNoteByID(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusBadRequest,
-			gin.H{
-				"error": "invalid id",
-			},
+			"invalid note id",
 		)
 
 		return
@@ -112,19 +118,30 @@ func (h *NoteHandler) GetNoteByID(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		if errors.Is(err, service.ErrNoteNotFound) {
+
+			response.Error(
+				c,
+				http.StatusNotFound,
+				err.Error(),
+			)
+
+			return
+		}
+
+		response.Error(
+			c,
 			http.StatusInternalServerError,
-			gin.H{
-				"error": "note not found",
-			},
+			"internal server error",
 		)
 
 		return
 	}
 
-	c.JSON(
+	response.Success(
+		c,
 		http.StatusOK,
-		note,
+		dto.ToNoteResponse(note),
 	)
 
 }
@@ -141,49 +158,45 @@ func (h *NoteHandler) UpdateNote(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusBadRequest,
-			gin.H{
-				"error": "invalid id",
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	var note model.Note
+	var req dto.UpdateNoteRequest
 
-	if err := c.ShouldBindJSON(&note); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusBadRequest,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	note.ID = uint(id)
-
-	err = h.Service.UpdateNote(&note)
+	note, err := h.Service.UpdateNote(uint(id), req)
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusInternalServerError,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return
 	}
 
-	c.JSON(
+	response.Success(
+		c,
 		http.StatusOK,
-		note,
+		dto.ToNoteResponse(note),
 	)
 
 }
@@ -200,11 +213,10 @@ func (h *NoteHandler) DeleteNote(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusBadRequest,
-			gin.H{
-				"error": "invalid id",
-			},
+			err.Error(),
 		)
 
 		return
@@ -216,11 +228,10 @@ func (h *NoteHandler) DeleteNote(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(
+		response.Error(
+			c,
 			http.StatusInternalServerError,
-			gin.H{
-				"error": err.Error(),
-			},
+			err.Error(),
 		)
 
 		return

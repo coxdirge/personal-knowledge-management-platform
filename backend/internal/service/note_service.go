@@ -1,8 +1,12 @@
 package service
 
 import (
+	"errors"
+
+	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/dto"
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/model"
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/repository"
+	"gorm.io/gorm"
 )
 
 type NoteService struct {
@@ -20,10 +24,21 @@ func NewNoteService(
 }
 
 func (s *NoteService) CreateNote(
-	note *model.Note,
-) error {
+	req dto.CreateNoteRequest,
+) (*model.Note, error) {
 
-	return s.Repo.Create(note)
+	note := &model.Note{
+		Title:   req.Title,
+		Content: req.Content,
+	}
+
+	err := s.Repo.Create(note)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return note, nil
 
 }
 
@@ -40,15 +55,47 @@ func (s *NoteService) GetNoteByID(
 	id uint,
 ) (*model.Note, error) {
 
-	return s.Repo.FindByID(id)
+	note, err := s.Repo.FindByID(id)
+
+	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNoteNotFound
+		}
+
+		return nil, err
+	}
+
+	return note, nil
 
 }
 
 func (s *NoteService) UpdateNote(
-	note *model.Note,
-) error {
+	id uint,
+	req dto.UpdateNoteRequest,
+) (*model.Note, error) {
 
-	return s.Repo.Update(note)
+	note, err := s.Repo.FindByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Title != nil {
+		note.Title = *req.Title
+	}
+
+	if req.Content != nil {
+		note.Content = *req.Content
+	}
+
+	err = s.Repo.Update(note)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return note, nil
 
 }
 
