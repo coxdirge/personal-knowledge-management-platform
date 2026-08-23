@@ -1,6 +1,10 @@
 package response
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func Error(
 	c *gin.Context,
@@ -30,5 +34,13 @@ func Success(
 			"data": data,
 		},
 	)
+
+}
+
+func NoContent(
+	c *gin.Context,
+) {
+
+	c.Status(http.StatusNoContent)
 
 }

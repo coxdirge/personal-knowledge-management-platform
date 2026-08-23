@@ -81,6 +81,10 @@ func (s *NoteService) UpdateNote(
 		return nil, err
 	}
 
+	if req.Content == nil && req.Title == nil {
+		return nil, ErrNoUpdateFields
+	}
+
 	if req.Title != nil {
 		note.Title = *req.Title
 	}
@@ -103,6 +107,12 @@ func (s *NoteService) DeleteNote(
 	id uint,
 ) error {
 
-	return s.Repo.Delete(id)
+	err := s.Repo.Delete(id)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrNoteNotFound
+	}
+
+	return err
 
 }

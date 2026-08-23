@@ -184,6 +184,19 @@ func (h *NoteHandler) UpdateNote(c *gin.Context) {
 
 	if err != nil {
 
+		if errors.Is(
+			err,
+			service.ErrNoUpdateFields,
+		) {
+			response.Error(
+				c,
+				http.StatusBadRequest,
+				err.Error(),
+			)
+
+			return
+		}
+
 		response.Error(
 			c,
 			http.StatusInternalServerError,
@@ -216,7 +229,7 @@ func (h *NoteHandler) DeleteNote(c *gin.Context) {
 		response.Error(
 			c,
 			http.StatusBadRequest,
-			err.Error(),
+			"invalid note id",
 		)
 
 		return
@@ -228,20 +241,28 @@ func (h *NoteHandler) DeleteNote(c *gin.Context) {
 
 	if err != nil {
 
+		if errors.Is(
+			err,
+			service.ErrNoteNotFound,
+		) {
+			response.Error(
+				c,
+				http.StatusNotFound,
+				err.Error(),
+			)
+
+			return
+		}
+
 		response.Error(
 			c,
 			http.StatusInternalServerError,
-			err.Error(),
+			"internal server error",
 		)
 
 		return
 	}
 
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"message": "note deleted",
-		},
-	)
+	response.NoContent(c)
 
 }

@@ -60,9 +60,19 @@ func (r *NoteRepository) Delete(id uint) error {
 
 	// DELETE FROM notes
 	// WHERE id=3;
-	return r.DB.Delete(
+	result := r.DB.Delete(
 		&model.Note{},
 		id,
-	).Error
+	)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 
 }

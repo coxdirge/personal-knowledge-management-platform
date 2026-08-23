@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "title": "置身事内",
-        "content": "中国房产制度"
+        "title": "go",
+        "content": "a simple lang"
       }
   auth: inherit
 
