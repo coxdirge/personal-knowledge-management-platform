@@ -5,12 +5,13 @@ info:
 
 http:
   method: PUT
-  url: "{{baseUrl}}/api/notes/2"
+  url: "{{baseUrl}}/api/notes/6"
   body:
     type: json
     data: |-
       {
-        "title":"rust"
+        "title":"csapp",
+        "Content":"lead to cs"
       }
   auth: inherit
 

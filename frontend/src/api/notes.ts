@@ -1,0 +1,95 @@
+import type { ApiResponse } from "../types/api"
+import type { Note, CreateNoteRequest, UpdateNoteRequest } from "../types/note"
+
+const API_BASE_URL = "http://localhost:8080/api"
+
+export async function getNotes(): Promise<Note[]> {
+
+  const response = await fetch(`${API_BASE_URL}/notes`)
+
+  if (!response.ok) {
+    throw new Error(
+      "failed to fetch notes"
+    )
+  }
+
+  const result: ApiResponse<Note[]> = await response.json()
+
+  return result.data
+}
+
+export async function createNote(
+  data: CreateNoteRequest
+) {
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}/notes`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(data),
+      }
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      "failed to create note"
+    )
+  }
+
+  return await response.json()
+}
+
+export async function updateNote(
+  id: number,
+  data: UpdateNoteRequest
+): Promise<Note> {
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}/notes/${id}`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(data),
+      }
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      "failed to update note"
+    )
+  }
+
+  const result: ApiResponse<Note> =
+    await response.json()
+
+  return result.data
+}
+
+export async function deleteNote(
+  id: number,
+): Promise<void> {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/notes/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      "failed to delete note"
+    )
+  }
+}

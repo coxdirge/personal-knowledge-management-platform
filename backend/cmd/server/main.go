@@ -25,7 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	// 开发阶段使用
+	// 开发阶段使用，生产环境改用 migrations
 	// 自动根据 model 创建表
 
 	err = database.DB.AutoMigrate(
@@ -74,6 +74,7 @@ func main() {
 			"POST",
 			"PUT",
 			"DELETE",
+			"OPTIONS",
 		},
 
 		AllowHeaders: []string{
@@ -81,6 +82,8 @@ func main() {
 			"Content-Type",
 			"Authorization",
 		},
+
+		AllowCredentials: true,
 	}))
 
 	// =========================
