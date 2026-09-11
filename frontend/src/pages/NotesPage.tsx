@@ -1,7 +1,9 @@
 import {
   useCallback,
   useEffect,
-  useState
+  useLayoutEffect,
+  useState,
+  useRef
 } from "react"
 
 import Loading from "../components/Loading"
@@ -35,6 +37,9 @@ export default function NotesPage() {
 
   const [showWelcome, setShowWelcome] =
     useState(true)
+
+  const carouselRef =
+    useRef<HTMLDivElement>(null)
 
 
   const fetchNotes = useCallback(
@@ -124,6 +129,15 @@ export default function NotesPage() {
     const handleKeyDown = (
       event: KeyboardEvent
     ) => {
+      const target = event.target
+
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        return
+      }
+
       if (event.key === "ArrowLeft") {
         selectPrevNote()
       } else if (event.key === "ArrowRight") {
@@ -143,6 +157,49 @@ export default function NotesPage() {
       )
     }
   }, [selectPrevNote, selectNextNote])
+
+  useLayoutEffect(() => {
+    const carousel = carouselRef.current
+    const selectedSlot = carousel?.querySelector<HTMLElement>(
+      `[data-note-id="${selectNoteId}"]`
+    )
+
+    if (!carousel || !selectedSlot) {
+      return
+    }
+
+    // Measure layout, not the card's animated 3D transform.
+    const centerSelectedNote = () => {
+      carousel.scrollTo({
+        left: selectedSlot.offsetLeft + selectedSlot.offsetWidth / 2
+          - carousel.clientWidth / 2,
+        behavior: "smooth",
+      })
+    }
+
+    let frame = 0
+    const scheduleCenter = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(centerSelectedNote)
+    }
+
+    scheduleCenter()
+
+    // Editing can change the track's height without changing selection.
+    const observer = new ResizeObserver(scheduleCenter)
+
+    observer.observe(carousel)
+    observer.observe(selectedSlot)
+
+    if (selectedSlot.parentElement) {
+      observer.observe(selectedSlot.parentElement)
+    }
+
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }, [selectNoteId, selectedNoteIndex, notes, loading, error])
 
   if (loading) {
     return <Loading />
@@ -249,9 +306,9 @@ export default function NotesPage() {
 
           </div>
 
-
           <div
             className="
+              relative
               min-h-[60vh]
               w-full
               min-w-0
@@ -265,22 +322,33 @@ export default function NotesPage() {
                 notes.length === 0 ||
                 selectedNoteIndex === 0
               }
+              className="
+              absolute
+              left-4
+              top-1/2
+              z-20
+              -translate-y-1/2
+              rounded-full
+              border
+              bg-white/80
+              px-4
+              py-3
+              text-xl
+              shadow-md
+              backdrop-blur
+              transition
+              hover:scale-105
+              disabled:cursor-not-allowed
+              disabled:opacity-30
+              "
             >
-              Prev Note
-            </button>
-
-            <button
-              type="button"
-              onClick={selectNextNote}
-              disabled={
-                notes.length === 0 ||
-                selectedNoteIndex === notes.length - 1
-              }
-            >
-              Next Note
+              {/*&lt;-*/}
+              {"<-"}
             </button>
 
             <div
+              ref={carouselRef}
+              style={{ overflowAnchor: "none" }}
               className="
                 w-full
                 max-w-full
@@ -291,6 +359,7 @@ export default function NotesPage() {
 
               <div
                 className="
+                  relative
                   flex
                   min-h-[60vh]
                   w-max
@@ -313,19 +382,24 @@ export default function NotesPage() {
                       index - selectedNoteIndex
 
                     return (
-                      <NoteCard
+                      <div
                         key={note.id}
-                        note={note}
-                        onUpdated={fetchNotes}
-                        onDeleted={fetchNotes}
-                        selected={
-                          activeNoteId === note.id
-                        }
-                        distance={distance}
-                        onSelect={() =>
-                          setSelectNoteId(note.id)
-                        }
-                      />
+                        data-note-id={note.id}
+                        className="w-80 shrink-0"
+                      >
+                        <NoteCard
+                          note={note}
+                          onUpdated={fetchNotes}
+                          onDeleted={fetchNotes}
+                          selected={
+                            activeNoteId === note.id
+                          }
+                          distance={distance}
+                          onSelect={() =>
+                            setSelectNoteId(note.id)
+                          }
+                        />
+                      </div>
                     )
                   })
                 }
@@ -333,6 +407,37 @@ export default function NotesPage() {
               </div>
 
             </div>
+
+            <button
+              type="button"
+              onClick={selectNextNote}
+              disabled={
+                notes.length === 0 ||
+                selectedNoteIndex === notes.length - 1
+              }
+              className="
+              absolute
+              right-4
+              top-1/2
+              z-20
+              -translate-y-1/2
+              rounded-full
+              border
+              bg-white/80
+              px-4
+              py-3
+              text-xl
+              shadow-md
+              backdrop-blur
+              transition
+              hover:scale-105
+              disabled:cursor-not-allowed
+              disabled:opacity-30
+              "
+            >
+              {/*-&gt;*/}
+              {"->"}
+            </button>
 
           </div>
 

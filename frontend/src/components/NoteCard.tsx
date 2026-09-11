@@ -1,7 +1,5 @@
 import {
   useState,
-  useRef,
-  useEffect,
 } from "react"
 
 import type {
@@ -59,8 +57,6 @@ export default function NoteCard({
   const translateY = selected
     ? -16
     : 0
-
-  const cardRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit:
     SubmitEventHandler<HTMLFormElement> =
@@ -169,21 +165,10 @@ export default function NoteCard({
     })
   }
 
-  useEffect(() => {
-    if (!selected) {
-      return
-    }
-
-    cardRef.current?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    })
-  }, [selected])
+  const isEditing = draftNote !== null
 
   return (
     <div
-      ref={cardRef}
       onClick={onSelect}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -196,16 +181,18 @@ export default function NoteCard({
         opacity: selected ? 1 : 0.65,
         zIndex: selected ? 10 : 1,
       }}
-      className={`
+      className="
+        relative
         w-80
         shrink-0
         cursor-pointer
         transition-[transform,opacity]
         duration-300
         ease-out
-      `}
+      "
     >
 
+      {/* 3D tilt layer */}
       <div
         style={{
           transform: `
@@ -214,173 +201,254 @@ export default function NoteCard({
             rotateY(${rotation.y}deg)
           `,
         }}
-        className={`
-        min-h-full
-        rounded-2xl
-        border
-        bg-white
-        p-6
-        transition-transform
-        duration-150
-        ease-out
-        ${
-          selected
-            ? "shadow-xl"
-            : "shadow-sm"
-        }
-      `}
+        className="
+          min-h-full
+          transition-transform
+          duration-150
+          ease-out
+        "
       >
 
-      {draftNote !== null ? (
-        <form
-          onSubmit={handleSubmit}
-          onClick={event =>
-            event.stopPropagation()
-          }
+        {/* Flip layer */}
+        <div
+          style={{
+            transform: isEditing
+              ? "rotateY(180deg)"
+              : "rotateY(0deg)",
+          }}
           className="
-          rounded-lg
-          border
-          p-4
-          shadow-sm
+            grid
+            h-44
+            transform-3d
+            transition-transform
+            duration-700
+            ease-in-out
           "
         >
-          <input
-            value={draftNote.title}
-            onChange={
-              e => setDraftNote({
-                ...draftNote,
-                title: e.target.value,
-              })
-            }
-            className="
-            w-full
-            rounded
-            border
-            p-2
-            "
-          />
 
-          <textarea
-            value={draftNote.content}
-            onChange={
-              e => setDraftNote({
-                ...draftNote,
-                content: e.target.value,
-              })
-            }
-            className="
-            mt-2
-            w-full
-            rounded
-            border
-            p-2
-            "
-          />
+          {/* ================= FRONT ================= */}
+          <div
+            className={`
+              [grid-area:1/1]
+              backface-hidden
 
-          <div className="mt-3 flex gap-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="
-              rounded
+              h-full
+              rounded-2xl
               border
-              px-3
-              py-1
-              "
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
+              bg-white
+              p-6
 
-            <button
-              type="button"
-              onClick={event => {
-                event.stopPropagation()
-                setDraftNote(null)
-              }}
-              className="
-              rounded
-              border
-              px-3
-              py-1
-              "
-            >
-              Cancel
-            </button>
+              ${
+                selected
+                  ? "shadow-xl"
+                  : "shadow-sm"
+              }
 
-            <button
-              type="button"
-              onClick={event => {
-                event.stopPropagation()
-                handleDelete()
-              }}
-              disabled={deleting}
-              className="
-                rounded
-                border
-                px-3
-                py-1
-              "
-            >
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
+              ${
+                isEditing
+                  ? "pointer-events-none"
+                  : "pointer-events-auto"
+              }
+            `}
+          >
+
+              <h2
+                className="
+                  text-xl
+                  font-bold
+                "
+              >
+                {note.title}
+              </h2>
+
+              <p
+                className="
+                  mt-2
+                  text-gray-600
+                "
+              >
+                {note.content}
+              </p>
+
+              {selected && (
+                <button
+                  type="button"
+                  onClick={handleEdit}
+                  className="
+                    mt-4
+                    rounded
+                    border
+                    px-3
+                    py-1
+                  "
+                >
+                  Edit
+                </button>
+              )}
+
 
           </div>
 
-          {error && (
-            <p className="mt-2 text-red-600">
-              {error}
-            </p>
-          )}
 
-        </form>
-      ) : (
-        <div
-          className="
-            rounded-lg
-            border
-            p-4
-            shadow-sm
-          "
-        >
+          {/* ================= BACK ================= */}
+          <div
+            className={`
+              [grid-area:1/1]
+              backface-hidden
+              transform-[rotateY(180deg)]
 
-          <h2
-            className="
-              text-xl
-              font-bold
-            "
+              h-full
+              rounded-2xl
+              border
+              bg-white
+              p-6
+              shadow-xl
+
+              ${
+                isEditing
+                  ? "pointer-events-auto"
+                  : "pointer-events-none"
+              }
+            `}
           >
-            {note.title}
-          </h2>
 
-
-          <p
-            className="
-              mt-2
-              text-gray-600
-            "
-          >
-            {note.content}
-          </p>
-
-
-          {selected && (
-            <button
-              type="button"
-              onClick={handleEdit}
+            <form
+              onSubmit={handleSubmit}
+              onClick={event =>
+                event.stopPropagation()
+              }
               className="
-                mt-4
-                rounded
-                border
-                px-3
-                py-1
+                flex
+                flex-col
+                gap-3
               "
             >
-              Edit
-            </button>
-          )}
+
+              <input
+                value={
+                  draftNote?.title
+                  ?? note.title
+                }
+                onChange={event =>
+                  setDraftNote(current => ({
+                    ...(current ?? note),
+                    title: event.target.value,
+                  }))
+                }
+                className="
+                  w-full
+                  rounded
+                  border
+                  p-2
+                "
+              />
+
+              <textarea
+                value={
+                  draftNote?.content
+                    ?? note.content
+                }
+                onChange={event =>
+                  setDraftNote(current => ({
+                    ...(current ?? note),
+                    content: event.target.value,
+                  }))
+                }
+                className="
+                  h-14
+                  w-full
+                  resize-none
+                  rounded
+                  border
+                  p-2
+                "
+              />
+
+              <div
+                className="
+                  mt-3
+                  flex
+                  gap-2
+                "
+              >
+
+                <div
+                  className="
+                    mt-auto
+                    flex gap-2
+                  "
+                >
+
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="
+                      rounded
+                      border
+                      px-3
+                      py-1
+                    "
+                  >
+                    {saving
+                      ? "Saving..."
+                      : "Save"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={event => {
+                      event.stopPropagation()
+                      setDraftNote(null)
+                    }}
+                    className="
+                      rounded
+                      border
+                      px-3
+                      py-1
+                    "
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={deleting}
+                    onClick={event => {
+                      event.stopPropagation()
+                      handleDelete()
+                    }}
+                    className="
+                      rounded
+                      border
+                      px-3
+                      py-1
+                    "
+                  >
+                    {deleting
+                      ? "Deleting..."
+                      : "Delete"}
+                  </button>
+
+                </div>
+
+                {error && (
+                  <p
+                    className="
+                      mt-2
+                      text-red-600
+                    "
+                  >
+                    {error}
+                  </p>
+                )}
+
+                </div>
+
+            </form>
+
+          </div>
 
         </div>
-      )}
 
       </div>
 
