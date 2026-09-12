@@ -51,11 +51,11 @@ export default function NoteCard({
   })
 
   const scale = selected
-    ? 1.08
+    ? 1.03
     : Math.max(0.82, 0.96 - Math.abs(distance) * 0.06)
 
   const translateY = selected
-    ? -16
+    ? -10
     : 0
 
   const handleSubmit:
@@ -183,7 +183,7 @@ export default function NoteCard({
       }}
       className="
         relative
-        w-80
+        w-full
         shrink-0
         cursor-pointer
         transition-[transform,opacity]

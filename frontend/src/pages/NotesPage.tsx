@@ -11,6 +11,8 @@ import ErrorMessage from "../components/ErrorMessage"
 import NoteForm from "../components/NoteForm"
 import NoteCard from "../components/NoteCard"
 import Welcome from "../components/Welcome"
+import Hero from "../components/Hero"
+
 
 import {
   getNotes
@@ -229,219 +231,195 @@ export default function NotesPage() {
 
       <main
         className="
+        relative
           min-h-screen
           w-full
-          px-6
-          py-12
         "
       >
 
-        <header
-          className="
-            flex
-            min-h-[35vh]
-            flex-col
-            items-center
-            justify-center
-            text-center
-          "
-        >
-
-          <p
-            className="
-              mb-3
-              text-sm
-              font-medium
-              uppercase
-              tracking-[0.3em]
-              text-gray-500
-            "
-          >
-            Personal Knowledge
-          </p>
-
-          <h1
-            className="
-              text-5xl
-              font-semibold
-              tracking-tight
-              sm:text-6xl
-            "
-          >
-            Think. Connect. Remember.
-          </h1>
-
-        </header>
-
-
-        <section
-          className="
-            flex
-            flex-col
-          "
-        >
-
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              px-8
-            "
-          >
-
-            <h2
-              className="
-                text-2xl
-                font-semibold
-                tracking-tight
-              "
-            >
-              My Notes
-            </h2>
-
-            <NoteForm
-              onCreated={fetchNotes}
-            />
-
-          </div>
-
-          <div
+        {/* Finite Hero → compact header + carousel → normal page exit. */}
+        <Hero>
+          {/* ================= NOTES WORKSPACE ================= */}
+          <section
             className="
               relative
-              min-h-[60vh]
-              w-full
-              min-w-0
+              z-10
+              flex
+              min-h-screen
+              flex-col
+              bg-white
+              px-6
+              pt-6
+              pb-12
             "
           >
 
-            <button
-              type="button"
-              onClick={selectPrevNote}
-              disabled={
-                notes.length === 0 ||
-                selectedNoteIndex === 0
-              }
-              className="
-              absolute
-              left-4
-              top-1/2
-              z-20
-              -translate-y-1/2
-              rounded-full
-              border
-              bg-white/80
-              px-4
-              py-3
-              text-xl
-              shadow-md
-              backdrop-blur
-              transition
-              hover:scale-105
-              disabled:cursor-not-allowed
-              disabled:opacity-30
-              "
-            >
-              {/*&lt;-*/}
-              {"<-"}
-            </button>
-
+            {/* ================= WORKSPACE HEADER ================= */}
             <div
-              ref={carouselRef}
-              style={{ overflowAnchor: "none" }}
               className="
-                w-full
-                max-w-full
-                overflow-x-auto
-                overflow-y-hidden
+                flex
+                items-center
+                justify-between
+                px-2
+                sm:px-8
               "
             >
 
-              <div
+              <h2
                 className="
-                  relative
-                  flex
-                  min-h-[60vh]
-                  w-max
-                  min-w-full
-                  items-center
-                  justify-center
-                  gap-6
-                  py-20
+                  text-2xl
+                  font-semibold
+                  tracking-tight
                 "
-                style={{
-                  paddingInline:
-                    "max(2rem, calc(50% - 10rem))",
-                }}
               >
+                My Notes
+              </h2>
 
-                {
-                  notes.map((note, index) => {
-
-                    const distance =
-                      index - selectedNoteIndex
-
-                    return (
-                      <div
-                        key={note.id}
-                        data-note-id={note.id}
-                        className="w-80 shrink-0"
-                      >
-                        <NoteCard
-                          note={note}
-                          onUpdated={fetchNotes}
-                          onDeleted={fetchNotes}
-                          selected={
-                            activeNoteId === note.id
-                          }
-                          distance={distance}
-                          onSelect={() =>
-                            setSelectNoteId(note.id)
-                          }
-                        />
-                      </div>
-                    )
-                  })
-                }
-
-              </div>
+              <NoteForm
+                onCreated={fetchNotes}
+              />
 
             </div>
 
-            <button
-              type="button"
-              onClick={selectNextNote}
-              disabled={
-                notes.length === 0 ||
-                selectedNoteIndex === notes.length - 1
-              }
+            {/* Bounded vertical spacing keeps cards close to the heading on tall screens. */}
+            <div
               className="
-              absolute
-              right-4
-              top-1/2
-              z-20
-              -translate-y-1/2
-              rounded-full
-              border
-              bg-white/80
-              px-4
-              py-3
-              text-xl
-              shadow-md
-              backdrop-blur
-              transition
-              hover:scale-105
-              disabled:cursor-not-allowed
-              disabled:opacity-30
+                relative
+                min-h-[clamp(20rem,38svh,26rem)]
+                w-full
+                min-w-0
               "
             >
-              {/*-&gt;*/}
-              {"->"}
-            </button>
 
-          </div>
+              <button
+                type="button"
+                onClick={selectPrevNote}
+                disabled={
+                  notes.length === 0 ||
+                  selectedNoteIndex === 0
+                }
+                className="
+                absolute
+                left-4
+                top-1/2
+                z-20
+                -translate-y-1/2
+                rounded-full
+                border
+                bg-white/80
+                px-4
+                py-3
+                text-xl
+                shadow-md
+                backdrop-blur
+                transition
+                hover:scale-105
+                disabled:cursor-not-allowed
+                disabled:opacity-30
+                "
+              >
+                {/*&lt;-*/}
+                {"<-"}
+              </button>
 
-        </section>
+              <div
+                ref={carouselRef}
+                style={{ overflowAnchor: "none" }}
+                className="
+                  w-full
+                  max-w-full
+                  overflow-x-auto
+                  overflow-y-hidden
+                "
+              >
+
+                <div
+                  className="
+                    relative
+                    flex
+                    min-h-[clamp(20rem,38svh,26rem)]
+                    w-max
+                    min-w-full
+                    items-center
+                    justify-center
+                    gap-6
+                    py-16
+                  "
+                  style={{
+                    paddingInline:
+                      "max(2rem, calc(50% - 10rem))",
+                  }}
+                >
+
+                  {
+                    notes.map((note, index) => {
+
+                      const distance =
+                        index - selectedNoteIndex
+
+                      return (
+                        // 20rem slot owns card width; track end padding uses its 10rem half-width.
+                        <div
+                          key={note.id}
+                          data-note-id={note.id}
+                          className="w-80 shrink-0"
+                        >
+                          <NoteCard
+                            note={note}
+                            onUpdated={fetchNotes}
+                            onDeleted={fetchNotes}
+                            selected={
+                              activeNoteId === note.id
+                            }
+                            distance={distance}
+                            onSelect={() =>
+                              setSelectNoteId(note.id)
+                            }
+                          />
+                        </div>
+                      )
+                    })
+                  }
+
+                </div>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={selectNextNote}
+                disabled={
+                  notes.length === 0 ||
+                  selectedNoteIndex === notes.length - 1
+                }
+                className="
+                absolute
+                right-4
+                top-1/2
+                z-20
+                -translate-y-1/2
+                rounded-full
+                border
+                bg-white/80
+                px-4
+                py-3
+                text-xl
+                shadow-md
+                backdrop-blur
+                transition
+                hover:scale-105
+                disabled:cursor-not-allowed
+                disabled:opacity-30
+                "
+              >
+                {/*-&gt;*/}
+                {"->"}
+              </button>
+
+            </div>
+
+          </section>
+        </Hero>
 
       </main>
     </>
