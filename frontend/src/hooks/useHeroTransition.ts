@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, useState } from "react"
 // One source of truth for typography, reserved header space, and scroll timing.
 const COMPACT_SCALE = 0.82
 const MORPH_SCREENS = 0.35
-const TITLE_WORKSPACE_GAP = 88
+const TITLE_WORKSPACE_GAP = 104
 const TITLE_REST_CENTER = 1 / 3
 
 export default function useHeroTransition() {

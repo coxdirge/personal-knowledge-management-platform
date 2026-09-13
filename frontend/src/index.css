@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@import "@fontsource/archivo/900-italic.css";
+
 
 @keyframes welcome {
   0% {
@@ -19,5 +23,14 @@
   100% {
     opacity: 0;
     transform: scale(1.04);
+  }
+}
+
+/* Dark canvas also covers loading/error routes without PageBackground. */
+@layer base {
+  html.dark {
+    color-scheme: dark;
+    background-color: #090a0d;
+    color: var(--color-zinc-100);
   }
 }

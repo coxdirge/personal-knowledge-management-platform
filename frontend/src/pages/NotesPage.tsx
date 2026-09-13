@@ -12,6 +12,8 @@ import NoteForm from "../components/NoteForm"
 import NoteCard from "../components/NoteCard"
 import Welcome from "../components/Welcome"
 import Hero from "../components/Hero"
+import PageBackground from "../components/PageBackground"
+import Navbar from "../components/Navbar"
 
 
 import {
@@ -220,6 +222,10 @@ export default function NotesPage() {
 
   return (
     <>
+      <PageBackground />
+
+      {/* ================= GLOBAL NAVIGATION ================= */}
+      <Navbar />
 
       {showWelcome && (
         <Welcome
@@ -247,7 +253,7 @@ export default function NotesPage() {
               flex
               min-h-screen
               flex-col
-              bg-white
+              bg-transparent
               px-6
               pt-6
               pb-12
@@ -269,7 +275,7 @@ export default function NotesPage() {
                 className="
                   text-2xl
                   font-semibold
-                  tracking-tight
+                  tracking-tight dark:text-zinc-100
                 "
               >
                 My Notes
@@ -306,7 +312,7 @@ export default function NotesPage() {
                 -translate-y-1/2
                 rounded-full
                 border
-                bg-white/80
+                bg-white/80 dark:bg-[#14161c]/80 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
                 px-4
                 py-3
                 text-xl
@@ -400,7 +406,7 @@ export default function NotesPage() {
                 -translate-y-1/2
                 rounded-full
                 border
-                bg-white/80
+                bg-white/80 dark:bg-[#14161c]/80 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
                 px-4
                 py-3
                 text-xl

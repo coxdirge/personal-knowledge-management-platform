@@ -52,7 +52,7 @@ export default function NoteFrom({
         className="
           rounded-full
           border
-          bg-white
+          bg-white dark:bg-[#14161c]/95 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30
           px-4
           py-2
           text-sm
@@ -60,7 +60,7 @@ export default function NoteFrom({
           shadow-sm
           transition
           hover:scale-105
-          hover:shadow-md
+          hover:shadow-md dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
         "
       >
         + New Note
@@ -78,7 +78,7 @@ export default function NoteFrom({
         gap-3
         rounded-2xl
         border
-        bg-white
+        bg-white dark:bg-[#14161c]/95 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30
         p-4
         shadow-lg
       "
@@ -97,7 +97,7 @@ export default function NoteFrom({
           py-2
           outline-none
           focus:ring-2
-          focus:ring-black/10
+          focus:ring-black/10 dark:bg-[#090a0d]/60 dark:text-zinc-100 dark:border-white/15 dark:placeholder:text-zinc-400 dark:focus:border-white/30 dark:focus:ring-2 dark:focus:ring-white/15 dark:focus:outline-none dark:disabled:opacity-40
         "
       />
 
@@ -116,7 +116,7 @@ export default function NoteFrom({
           py-2
           outline-none
           focus:ring-2
-          focus:ring-black/10
+          focus:ring-black/10 dark:bg-[#090a0d]/60 dark:text-zinc-100 dark:border-white/15 dark:placeholder:text-zinc-400 dark:focus:border-white/30 dark:focus:ring-2 dark:focus:ring-white/15 dark:focus:outline-none dark:disabled:opacity-40
         "
       />
 
@@ -140,7 +140,7 @@ export default function NoteFrom({
             px-3
             py-2
             text-sm
-            text-gray-500
+            text-gray-500 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
             transition
             hover:bg-gray-100
           "
@@ -152,7 +152,7 @@ export default function NoteFrom({
           type="submit"
           className="
             rounded-lg
-            bg-black
+            bg-black dark:bg-white/10 dark:text-zinc-100 dark:hover:bg-white/15 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40 dark:disabled:opacity-40
             px-4
             py-2
             text-sm

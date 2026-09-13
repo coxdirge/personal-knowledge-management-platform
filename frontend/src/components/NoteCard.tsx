@@ -235,13 +235,13 @@ export default function NoteCard({
               h-full
               rounded-2xl
               border
-              bg-white
+              bg-white dark:bg-[#14161c]/95 dark:text-zinc-100 dark:border-white/15
               p-6
 
               ${
                 selected
-                  ? "shadow-xl"
-                  : "shadow-sm"
+                  ? "shadow-xl dark:border-white/25 dark:shadow-black/40"
+                  : "shadow-sm dark:border-white/10 dark:shadow-black/20"
               }
 
               ${
@@ -264,7 +264,7 @@ export default function NoteCard({
               <p
                 className="
                   mt-2
-                  text-gray-600
+                  text-gray-600 dark:text-zinc-400
                 "
               >
                 {note.content}
@@ -279,7 +279,7 @@ export default function NoteCard({
                     rounded
                     border
                     px-3
-                    py-1
+                    py-1 dark:bg-white/5 dark:text-zinc-100 dark:border-white/15 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40 dark:disabled:opacity-40 dark:disabled:hover:bg-white/5
                   "
                 >
                   Edit
@@ -300,7 +300,7 @@ export default function NoteCard({
               h-full
               rounded-2xl
               border
-              bg-white
+              bg-white dark:bg-[#14161c]/95 dark:text-zinc-100 dark:border-white/15
               p-6
               shadow-xl
 
@@ -339,7 +339,7 @@ export default function NoteCard({
                   w-full
                   rounded
                   border
-                  p-2
+                  p-2 dark:bg-[#090a0d]/60 dark:text-zinc-100 dark:border-white/15 dark:placeholder:text-zinc-400 dark:focus:border-white/30 dark:focus:ring-2 dark:focus:ring-white/15 dark:focus:outline-none dark:disabled:opacity-40
                 "
               />
 
@@ -360,7 +360,7 @@ export default function NoteCard({
                   resize-none
                   rounded
                   border
-                  p-2
+                  p-2 dark:bg-[#090a0d]/60 dark:text-zinc-100 dark:border-white/15 dark:placeholder:text-zinc-400 dark:focus:border-white/30 dark:focus:ring-2 dark:focus:ring-white/15 dark:focus:outline-none dark:disabled:opacity-40
                 "
               />
 
@@ -386,7 +386,7 @@ export default function NoteCard({
                       rounded
                       border
                       px-3
-                      py-1
+                      py-1 dark:bg-white/5 dark:text-zinc-100 dark:border-white/15 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40 dark:disabled:opacity-40 dark:disabled:hover:bg-white/5
                     "
                   >
                     {saving
@@ -404,7 +404,7 @@ export default function NoteCard({
                       rounded
                       border
                       px-3
-                      py-1
+                      py-1 dark:bg-white/5 dark:text-zinc-100 dark:border-white/15 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40 dark:disabled:opacity-40 dark:disabled:hover:bg-white/5
                     "
                   >
                     Cancel
@@ -421,7 +421,7 @@ export default function NoteCard({
                       rounded
                       border
                       px-3
-                      py-1
+                      py-1 dark:bg-white/5 dark:text-red-400 dark:border-white/15 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40 dark:disabled:opacity-40 dark:disabled:hover:bg-white/5
                     "
                   >
                     {deleting
@@ -435,7 +435,7 @@ export default function NoteCard({
                   <p
                     className="
                       mt-2
-                      text-red-600
+                      text-red-600 dark:text-red-400
                     "
                   >
                     {error}

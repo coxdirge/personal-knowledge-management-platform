@@ -32,7 +32,7 @@ export default function Welcome({
         flex
         items-center
         justify-center
-        bg-white
+        bg-white dark:bg-[#090a0d] dark:text-zinc-100
       "
     >
       <h1

@@ -5,7 +5,7 @@ export default function Loading() {
       flex
       justify-center
       p-6
-      text-gray-500
+      text-gray-500 dark:text-zinc-400
       "
     >
       Loading...

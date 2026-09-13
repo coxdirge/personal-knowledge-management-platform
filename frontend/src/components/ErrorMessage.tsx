@@ -7,7 +7,7 @@ export default function ErrorMessage({ message }: Props) {
     <div
       className="
       p-6
-      text-red-500
+      text-red-500 dark:text-red-400
       "
     >
       {message}
