@@ -1,10 +1,7 @@
-import NotesPage from "./pages/NotesPage";
+import NotesPage from "./pages/NotesPage"
 
 function App() {
-
-  return (
-    <NotesPage />
-  )
+  return <NotesPage />
 }
 
-export default App;
+export default App

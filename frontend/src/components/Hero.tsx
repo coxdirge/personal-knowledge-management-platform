@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 
-import type {
-  ReactNode,
-} from "react"
+import type { ReactNode } from "react"
 
 import HeroLens from "./HeroLens"
 import { CORE_RADIUS, LENS_RADIUS } from "./heroLensGeometry"
@@ -16,8 +14,15 @@ interface Props {
 
 export default function Hero({ children }: Props) {
   const {
-    sectionRef, titleRef, workspaceRef,
-    progress, scale, titleCenter, titleHeight, sectionHeight, stageOffset,
+    sectionRef,
+    titleRef,
+    workspaceRef,
+    progress,
+    scale,
+    titleCenter,
+    titleHeight,
+    sectionHeight,
+    stageOffset,
   } = useHeroTransition()
 
   const interactionRef = useRef<HTMLDivElement>(null)
@@ -25,14 +30,12 @@ export default function Hero({ children }: Props) {
   const targetLensPosition = useRef({ x: 0, y: 0 })
   const currentLensPosition = useRef({ x: 0, y: 0 })
 
-  const [lensPosition, setLensPosition] =
-    useState({
-      x: 0,
-      y: 0,
-    })
+  const [lensPosition, setLensPosition] = useState({
+    x: 0,
+    y: 0,
+  })
 
-  const [lensVisible, setLensVisible] =
-    useState(false)
+  const [lensVisible, setLensVisible] = useState(false)
 
   const lensFadeStart = 0.45
   const lensFadeEnd = 0.9
@@ -42,12 +45,7 @@ export default function Hero({ children }: Props) {
       ? 1
       : progress >= lensFadeEnd
         ? 0
-        : 1 -
-          (
-            (progress - lensFadeStart) /
-            (lensFadeEnd - lensFadeStart)
-          )
-
+        : 1 - (progress - lensFadeStart) / (lensFadeEnd - lensFadeStart)
 
   useEffect(() => {
     let frame = 0
@@ -71,10 +69,18 @@ export default function Hero({ children }: Props) {
       frame = 0
       if (pointer) {
         const rect = interactionRef.current?.getBoundingClientRect()
-        if (!rect) { leave(); return }
+        if (!rect) {
+          leave()
+          return
+        }
         const next = { x: pointer.x - rect.left, y: pointer.y - rect.top }
         pointer = null
-        if (next.x < 0 || next.x > rect.width || next.y < 0 || next.y > rect.height) {
+        if (
+          next.x < 0 ||
+          next.x > rect.width ||
+          next.y < 0 ||
+          next.y > rect.height
+        ) {
           leave()
           return
         }
@@ -91,14 +97,21 @@ export default function Hero({ children }: Props) {
 
       const target = targetLensPosition.current
       const current = currentLensPosition.current
-      const elapsed = lastTime === null ? 1000 / 60 : Math.min(time - lastTime, 64)
+      const elapsed =
+        lastTime === null ? 1000 / 60 : Math.min(time - lastTime, 64)
       lastTime = time
       // 0.14 at 60Hz; time normalization keeps 120Hz screens equally weighty.
-      const easing = reducedMotion.matches ? 1 : 1 - Math.pow(1 - 0.14, elapsed / (1000 / 60))
+      const easing = reducedMotion.matches
+        ? 1
+        : 1 - Math.pow(1 - 0.14, elapsed / (1000 / 60))
       current.x += (target.x - current.x) * easing
       current.y += (target.y - current.y) * easing
-      const settled = Math.hypot(target.x - current.x, target.y - current.y) < 0.1
-      if (settled) { current.x = target.x; current.y = target.y }
+      const settled =
+        Math.hypot(target.x - current.x, target.y - current.y) < 0.1
+      if (settled) {
+        current.x = target.x
+        current.y = target.y
+      }
       setLensPosition({ ...current })
       // Stop at rest, restart on movement. No permanent animation/render loop.
       if (settled) lastTime = null
@@ -121,27 +134,38 @@ export default function Hero({ children }: Props) {
   }, [])
 
   return (
-
     <section
       ref={sectionRef}
       aria-label="Knowledge and notes"
-      className="relative min-h-screen overflow-clip"
+      className="
+        relative
+        min-h-screen
+        overflow-clip
+      "
       style={{ height: sectionHeight, overflowAnchor: "none" }}
     >
-
       {/* Follow scroll during the morph, then stop compensating: both regions leave
           together. Clip the initial offscreen workspace to the stable scroll track. */}
       <div
-        className="absolute inset-x-0 top-0"
+        className="
+          absolute
+          inset-x-0
+          top-0
+        "
         style={{ transform: `translateY(${stageOffset}px)` }}
       >
-
         {/* Stable opening-viewport coordinates, independent of titleHeight.
             Pointer events pass through to the workspace below. */}
         <div
           ref={interactionRef}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-svh"
+          className="
+            pointer-events-none
+            absolute
+            inset-x-0
+            top-0
+            h-svh
+          "
         >
           {/* ================= HERO LENS ================= */}
           <HeroLens
@@ -149,11 +173,7 @@ export default function Hero({ children }: Props) {
             titleCenter={titleCenter}
             x={lensPosition.x}
             y={lensPosition.y}
-            opacity={
-              lensVisible
-                ? lensOpacity
-                : 0
-            }
+            opacity={lensVisible ? lensOpacity : 0}
           >
             <div
               className="
@@ -166,13 +186,9 @@ export default function Hero({ children }: Props) {
                 transform: "translateY(-50%)",
               }}
             >
-              <HeroLensText
-                scale={scale}
-              />
+              <HeroLensText scale={scale} />
             </div>
           </HeroLens>
-
-
         </div>
 
         <header
@@ -188,7 +204,6 @@ export default function Hero({ children }: Props) {
             height: titleHeight,
           }}
         >
-
           {/* ================= BASE HERO TITLE ================= */}
           <div
             ref={titleRef}
@@ -208,7 +223,6 @@ export default function Hero({ children }: Props) {
             <HeroTitle scale={scale} />
           </div>
 
-
           {/* ================= SCROLL CUE ================= */}
           <p
             className="
@@ -216,26 +230,20 @@ export default function Hero({ children }: Props) {
               absolute
               bottom-8
               text-sm
-              text-gray-400 dark:text-zinc-400
+              text-gray-400
+              dark:text-zinc-400
             "
             style={{
-              opacity:
-                Math.max(
-                  0,
-                  1 - progress * 4
-                ),
+              opacity: Math.max(0, 1 - progress * 4),
             }}
           >
             Scroll to explore
           </p>
-
         </header>
 
         {/* The heading reserves real space above the workspace, with no overlay. */}
         <div ref={workspaceRef}>{children}</div>
-
       </div>
-
     </section>
   )
 }

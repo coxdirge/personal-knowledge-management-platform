@@ -11,7 +11,10 @@ export default function useHeroTransition() {
   const titleRef = useRef<HTMLDivElement>(null)
   const workspaceRef = useRef<HTMLDivElement>(null)
   const [geometry, setGeometry] = useState({
-    progress: 0, viewport: 0, compact: 0, workspace: 0,
+    progress: 0,
+    viewport: 0,
+    compact: 0,
+    workspace: 0,
   })
 
   useLayoutEffect(() => {
@@ -23,21 +26,32 @@ export default function useHeroTransition() {
       if (!section || !title || !workspace) return
 
       const viewport = document.documentElement.clientHeight
-      const progress = Math.min(1, Math.max(0,
-        -section.getBoundingClientRect().top / (viewport * MORPH_SCREENS)))
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          -section.getBoundingClientRect().top / (viewport * MORPH_SCREENS),
+        ),
+      )
       const next = {
         progress,
         viewport,
         // Reserve only the title's bottom edge + a fixed workspace gap.
         // Title position is independent of this space; offsetHeight ignores scale.
-        compact: viewport * TITLE_REST_CENTER
-          + title.offsetHeight * COMPACT_SCALE / 2 + TITLE_WORKSPACE_GAP,
+        compact:
+          viewport * TITLE_REST_CENTER +
+          (title.offsetHeight * COMPACT_SCALE) / 2 +
+          TITLE_WORKSPACE_GAP,
         workspace: workspace.offsetHeight,
       }
       setGeometry(current =>
-        current.progress === next.progress && current.viewport === next.viewport &&
-        current.compact === next.compact && current.workspace === next.workspace
-          ? current : next)
+        current.progress === next.progress &&
+        current.viewport === next.viewport &&
+        current.compact === next.compact &&
+        current.workspace === next.workspace
+          ? current
+          : next,
+      )
     }
     const schedule = () => {
       cancelAnimationFrame(frame)
@@ -64,11 +78,17 @@ export default function useHeroTransition() {
   const openingCenter = viewport / 2 - 32
   const restingCenter = viewport * TITLE_REST_CENTER
   return {
-    sectionRef, titleRef, workspaceRef, progress,
+    sectionRef,
+    titleRef,
+    workspaceRef,
+    progress,
     scale: 1 + (COMPACT_SCALE - 1) * progress,
     titleCenter: viewport
-      ? openingCenter + (restingCenter - openingCenter) * progress : "calc(50% - 32px)",
-    titleHeight: viewport ? viewport + (compact - viewport) * progress : "100svh",
+      ? openingCenter + (restingCenter - openingCenter) * progress
+      : "calc(50% - 32px)",
+    titleHeight: viewport
+      ? viewport + (compact - viewport) * progress
+      : "100svh",
     // Follow page scroll only while morphing. At the endpoint this offset stops,
     // so the heading and workspace immediately scroll away together (and reverse).
     stageOffset: progress * viewport * MORPH_SCREENS,

@@ -3,7 +3,7 @@ import {
   useEffect,
   useLayoutEffect,
   useState,
-  useRef
+  useRef,
 } from "react"
 
 import Loading from "../components/Loading"
@@ -15,103 +15,64 @@ import Hero from "../components/Hero"
 import PageBackground from "../components/PageBackground"
 import Navbar from "../components/Navbar"
 
+import { getNotes } from "../api/notes"
 
-import {
-  getNotes
-} from "../api/notes"
-
-import type {
-  Note
-} from "../types/note"
-
+import type { Note } from "../types/note"
 
 export default function NotesPage() {
+  const [notes, setNotes] = useState<Note[]>([])
 
-  const [notes, setNotes] =
-    useState<Note[]>([])
+  const [selectNoteId, setSelectNoteId] = useState<number | null>(null)
 
-  const [selectNoteId, setSelectNoteId] =
-    useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const [loading, setLoading] =
-    useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [error, setError] =
-    useState<string | null>(null)
+  const [showWelcome, setShowWelcome] = useState(true)
 
-  const [showWelcome, setShowWelcome] =
-    useState(true)
+  const carouselRef = useRef<HTMLDivElement>(null)
 
-  const carouselRef =
-    useRef<HTMLDivElement>(null)
+  const fetchNotes = useCallback(async () => {
+    try {
+      const data = await getNotes()
 
-
-  const fetchNotes = useCallback(
-    async () => {
-
-      try {
-
-        const data = await getNotes()
-
-        setNotes(data)
-        setSelectNoteId(
-          current =>
-            data.some(note => note.id === current)
-              ? current
-              : data[0]?.id ?? null
-        )
-        setError(null)
-
-      } catch {
-
-        setError(
-          "Failed to load notes"
-        )
-
-      }
-    },
-    []
-  )
-
+      setNotes(data)
+      setSelectNoteId(current =>
+        data.some(note => note.id === current)
+          ? current
+          : (data[0]?.id ?? null),
+      )
+      setError(null)
+    } catch {
+      setError("Failed to load notes")
+    }
+  }, [])
 
   useEffect(() => {
-
     const loadNotes = async () => {
-
       try {
-
         setLoading(true)
 
         await fetchNotes()
-
       } finally {
-
         setLoading(false)
-
       }
     }
 
     loadNotes()
-
   }, [fetchNotes])
 
   const selectedNoteIndex = Math.max(
-    notes.findIndex(
-      note => note.id === selectNoteId
-    ),
-    0
+    notes.findIndex(note => note.id === selectNoteId),
+    0,
   )
-
 
   const selectPrevNote = useCallback(() => {
     if (notes.length === 0) {
       return
     }
 
-    const prevIndex = Math.max(
-      selectedNoteIndex - 1,
-      0
-    )
+    const prevIndex = Math.max(selectedNoteIndex - 1, 0)
 
     setSelectNoteId(notes[prevIndex].id)
   }, [notes, selectedNoteIndex])
@@ -121,18 +82,13 @@ export default function NotesPage() {
       return
     }
 
-    const nextIndex = Math.min(
-      selectedNoteIndex + 1,
-      notes.length - 1
-    )
+    const nextIndex = Math.min(selectedNoteIndex + 1, notes.length - 1)
 
     setSelectNoteId(notes[nextIndex].id)
   }, [notes, selectedNoteIndex])
 
   useEffect(() => {
-    const handleKeyDown = (
-      event: KeyboardEvent
-    ) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target
 
       if (
@@ -149,23 +105,17 @@ export default function NotesPage() {
       }
     }
 
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    )
+    window.addEventListener("keydown", handleKeyDown)
 
     return () => {
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      )
+      window.removeEventListener("keydown", handleKeyDown)
     }
   }, [selectPrevNote, selectNextNote])
 
   useLayoutEffect(() => {
     const carousel = carouselRef.current
     const selectedSlot = carousel?.querySelector<HTMLElement>(
-      `[data-note-id="${selectNoteId}"]`
+      `[data-note-id="${selectNoteId}"]`,
     )
 
     if (!carousel || !selectedSlot) {
@@ -175,8 +125,10 @@ export default function NotesPage() {
     // Measure layout, not the card's animated 3D transform.
     const centerSelectedNote = () => {
       carousel.scrollTo({
-        left: selectedSlot.offsetLeft + selectedSlot.offsetWidth / 2
-          - carousel.clientWidth / 2,
+        left:
+          selectedSlot.offsetLeft +
+          selectedSlot.offsetWidth / 2 -
+          carousel.clientWidth / 2,
         behavior: "smooth",
       })
     }
@@ -210,15 +162,10 @@ export default function NotesPage() {
   }
 
   if (error) {
-    return (
-      <ErrorMessage
-        message={error}
-      />
-    )
+    return <ErrorMessage message={error} />
   }
 
-  const activeNoteId =
-    selectNoteId ?? notes[0]?.id ?? null
+  const activeNoteId = selectNoteId ?? notes[0]?.id ?? null
 
   return (
     <>
@@ -227,22 +174,15 @@ export default function NotesPage() {
       {/* ================= GLOBAL NAVIGATION ================= */}
       <Navbar />
 
-      {showWelcome && (
-        <Welcome
-        onComplete={() =>
-            setShowWelcome(false)
-          }
-        />
-      )}
+      {showWelcome && <Welcome onComplete={() => setShowWelcome(false)} />}
 
       <main
         className="
-        relative
+          relative
           min-h-screen
           w-full
         "
       >
-
         {/* Finite Hero → compact header + carousel → normal page exit. */}
         <Hero>
           {/* ================= NOTES WORKSPACE ================= */}
@@ -259,7 +199,6 @@ export default function NotesPage() {
               pb-12
             "
           >
-
             {/* ================= WORKSPACE HEADER ================= */}
             <div
               className="
@@ -270,21 +209,18 @@ export default function NotesPage() {
                 sm:px-8
               "
             >
-
               <h2
                 className="
                   text-2xl
                   font-semibold
-                  tracking-tight dark:text-zinc-100
+                  tracking-tight
+                  dark:text-zinc-100
                 "
               >
                 My Notes
               </h2>
 
-              <NoteForm
-                onCreated={fetchNotes}
-              />
-
+              <NoteForm onCreated={fetchNotes} />
             </div>
 
             {/* Bounded vertical spacing keeps cards close to the heading on tall screens. */}
@@ -296,32 +232,35 @@ export default function NotesPage() {
                 min-w-0
               "
             >
-
               <button
                 type="button"
                 onClick={selectPrevNote}
-                disabled={
-                  notes.length === 0 ||
-                  selectedNoteIndex === 0
-                }
+                disabled={notes.length === 0 || selectedNoteIndex === 0}
                 className="
-                absolute
-                left-4
-                top-1/2
-                z-20
-                -translate-y-1/2
-                rounded-full
-                border
-                bg-white/80 dark:bg-[#14161c]/80 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
-                px-4
-                py-3
-                text-xl
-                shadow-md
-                backdrop-blur
-                transition
-                hover:scale-105
-                disabled:cursor-not-allowed
-                disabled:opacity-30
+                  absolute
+                  left-4
+                  top-1/2
+                  z-20
+                  -translate-y-1/2
+                  rounded-full
+                  border
+                  bg-white/80
+                  dark:bg-[#14161c]/80
+                  dark:text-zinc-100
+                  dark:border-white/15
+                  dark:shadow-black/30
+                  dark:hover:bg-white/10
+                  dark:focus-visible:outline-2
+                  dark:focus-visible:outline-white/40
+                  px-4
+                  py-3
+                  text-xl
+                  shadow-md
+                  backdrop-blur
+                  transition
+                  hover:scale-105
+                  disabled:cursor-not-allowed
+                  disabled:opacity-30
                 "
               >
                 {/*&lt;-*/}
@@ -338,7 +277,6 @@ export default function NotesPage() {
                   overflow-y-hidden
                 "
               >
-
                 <div
                   className="
                     relative
@@ -352,81 +290,75 @@ export default function NotesPage() {
                     py-16
                   "
                   style={{
-                    paddingInline:
-                      "max(2rem, calc(50% - 10rem))",
+                    paddingInline: "max(2rem, calc(50% - 10rem))",
                   }}
                 >
+                  {notes.map((note, index) => {
+                    const distance = index - selectedNoteIndex
 
-                  {
-                    notes.map((note, index) => {
-
-                      const distance =
-                        index - selectedNoteIndex
-
-                      return (
-                        // 20rem slot owns card width; track end padding uses its 10rem half-width.
-                        <div
-                          key={note.id}
-                          data-note-id={note.id}
-                          className="w-80 shrink-0"
-                        >
-                          <NoteCard
-                            note={note}
-                            onUpdated={fetchNotes}
-                            onDeleted={fetchNotes}
-                            selected={
-                              activeNoteId === note.id
-                            }
-                            distance={distance}
-                            onSelect={() =>
-                              setSelectNoteId(note.id)
-                            }
-                          />
-                        </div>
-                      )
-                    })
-                  }
-
+                    return (
+                      // 20rem slot owns card width; track end padding uses its 10rem half-width.
+                      <div
+                        key={note.id}
+                        data-note-id={note.id}
+                        className="
+                          w-80
+                          shrink-0
+                        "
+                      >
+                        <NoteCard
+                          note={note}
+                          onUpdated={fetchNotes}
+                          onDeleted={fetchNotes}
+                          selected={activeNoteId === note.id}
+                          distance={distance}
+                          onSelect={() => setSelectNoteId(note.id)}
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
-
               </div>
 
               <button
                 type="button"
                 onClick={selectNextNote}
                 disabled={
-                  notes.length === 0 ||
-                  selectedNoteIndex === notes.length - 1
+                  notes.length === 0 || selectedNoteIndex === notes.length - 1
                 }
                 className="
-                absolute
-                right-4
-                top-1/2
-                z-20
-                -translate-y-1/2
-                rounded-full
-                border
-                bg-white/80 dark:bg-[#14161c]/80 dark:text-zinc-100 dark:border-white/15 dark:shadow-black/30 dark:hover:bg-white/10 dark:focus-visible:outline-2 dark:focus-visible:outline-white/40
-                px-4
-                py-3
-                text-xl
-                shadow-md
-                backdrop-blur
-                transition
-                hover:scale-105
-                disabled:cursor-not-allowed
-                disabled:opacity-30
+                  absolute
+                  right-4
+                  top-1/2
+                  z-20
+                  -translate-y-1/2
+                  rounded-full
+                  border
+                  bg-white/80
+                  dark:bg-[#14161c]/80
+                  dark:text-zinc-100
+                  dark:border-white/15
+                  dark:shadow-black/30
+                  dark:hover:bg-white/10
+                  dark:focus-visible:outline-2
+                  dark:focus-visible:outline-white/40
+                  px-4
+                  py-3
+                  text-xl
+                  shadow-md
+                  backdrop-blur
+                  transition
+                  hover:scale-105
+                  disabled:cursor-not-allowed
+                  disabled:opacity-30
                 "
               >
                 {/*-&gt;*/}
                 {"->"}
               </button>
-
             </div>
-
           </section>
         </Hero>
-
       </main>
     </>
   )

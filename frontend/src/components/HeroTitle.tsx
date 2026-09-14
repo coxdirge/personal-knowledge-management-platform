@@ -3,11 +3,7 @@ interface Props {
   inverted?: boolean
 }
 
-export default function HeroTitle({
-  scale,
-  inverted = false,
-}: Props) {
-
+export default function HeroTitle({ scale, inverted = false }: Props) {
   return (
     <div
       style={{
@@ -15,7 +11,8 @@ export default function HeroTitle({
       }}
       className="
         text-center
-        will-change-transform dark:text-zinc-100
+        will-change-transform
+        dark:text-zinc-100
       "
     >
       <p
@@ -29,7 +26,10 @@ export default function HeroTitle({
           ${
             inverted
               ? "text-white/70"
-              : "text-gray-500 dark:text-zinc-400"
+              : `
+                text-gray-500
+                dark:text-zinc-400
+              `
           }
         `}
       >
@@ -38,7 +38,8 @@ export default function HeroTitle({
 
       <h1
         style={{
-          fontFamily: '"Archivo", sans-serif',
+          fontFamily: '"HYZhengYuan95", sans-serif',
+          fontSynthesis: "none",
         }}
         className="
           grid
@@ -47,17 +48,26 @@ export default function HeroTitle({
           gap-[0.12em]
           text-[clamp(2.75rem,6.4vw,7.5rem)]
           leading-[0.95]
-          font-black
-          italic
+          font-extrabold
           tracking-[-0.04em]
         "
       >
         <span>Think.</span>
-        <span>Connect.</span>
-        <span>Remember.</span>
-
+        <span
+          className="
+            -skew-x-10
+          "
+        >
+          Connect.
+        </span>
+        <span
+          className="
+            -skew-x-10
+          "
+        >
+          Remember.
+        </span>
       </h1>
-
     </div>
   )
 }

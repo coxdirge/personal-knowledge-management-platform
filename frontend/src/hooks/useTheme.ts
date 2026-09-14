@@ -27,11 +27,7 @@ export default function useTheme() {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(current =>
-      current === "light"
-        ? "dark"
-        : "light"
-    )
+    setTheme(current => (current === "light" ? "dark" : "light"))
   }
 
   return {

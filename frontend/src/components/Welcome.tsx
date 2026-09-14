@@ -1,26 +1,14 @@
-import {
-  useEffect
-} from "react"
+import { useEffect } from "react"
 
 interface Props {
   onComplete: () => void
 }
 
-export default function Welcome({
-  onComplete
-}: Props) {
-
+export default function Welcome({ onComplete }: Props) {
   useEffect(() => {
+    const timer = setTimeout(onComplete, 2000)
 
-    const timer =
-      setTimeout(
-        onComplete,
-        2000
-      )
-
-    return () =>
-      clearTimeout(timer)
-
+    return () => clearTimeout(timer)
   }, [onComplete])
 
   return (
@@ -32,7 +20,9 @@ export default function Welcome({
         flex
         items-center
         justify-center
-        bg-white dark:bg-[#090a0d] dark:text-zinc-100
+        bg-white
+        dark:bg-[#090a0d]
+        dark:text-zinc-100
       "
     >
       <h1

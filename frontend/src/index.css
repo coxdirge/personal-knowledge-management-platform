@@ -1,8 +1,15 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-@import "@fontsource/archivo/900-italic.css";
-
+/* Reference font: https://pidanai.com/assets/pdaim-home/pdaim-pro.woff2
+   Embedded family: HYZhengYuan-95W; static weight 800. */
+@font-face {
+  font-family: "HYZhengYuan95";
+  src: url("./assets/fonts/HYZhengYuan-95W.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 @keyframes welcome {
   0% {

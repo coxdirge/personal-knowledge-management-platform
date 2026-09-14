@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import HeroLensRim from "./HeroLensRim"
 import { LENS_SIZE, RIM_SIZE, CORE_RADIUS } from "./heroLensGeometry"
 
@@ -5,11 +7,10 @@ interface Props {
   x: number
   y: number
   opacity: number
-  children: React.ReactNode
+  children: ReactNode
   scale: number
   titleCenter: number | string
 }
-
 
 export default function HeroLens({
   x,
@@ -19,9 +20,6 @@ export default function HeroLens({
   scale,
   titleCenter,
 }: Props) {
-
-
-
   return (
     <div
       aria-hidden="true"
@@ -36,7 +34,6 @@ export default function HeroLens({
         transition: "opacity 180ms ease",
       }}
     >
-
       <HeroLensRim x={x} y={y} scale={scale} titleCenter={titleCenter} />
 
       {/* ================= LENS BODY ================= */}
@@ -53,7 +50,6 @@ export default function HeroLens({
           transform: "translate(-50%, -50%)",
         }}
       >
-
         {/* ================= REFRACTIVE RIM ================= */}
         <div
           className="
@@ -81,7 +77,8 @@ export default function HeroLens({
           className="
             absolute
             rounded-full
-            bg-black dark:bg-zinc-100
+            bg-black
+            dark:bg-zinc-100
             dark:bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.98),rgba(244,245,248,0.92)_55%,rgba(215,220,230,0.82)_100%)]
             dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),inset_0_-8px_18px_rgba(30,40,60,0.08)]
           "
@@ -89,9 +86,7 @@ export default function HeroLens({
             inset: RIM_SIZE,
           }}
         />
-
       </div>
-
 
       {/* ================= CHINESE SEMANTIC CORE ================= */}
       <div
@@ -110,7 +105,6 @@ export default function HeroLens({
       >
         {children}
       </div>
-
     </div>
   )
 }

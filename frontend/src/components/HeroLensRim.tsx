@@ -1,6 +1,11 @@
 import { useId, useState } from "react"
 import HeroTitle from "./HeroTitle"
-import { CORE_RADIUS, LENS_RADIUS, LENS_SIZE, RIM_SIZE } from "./heroLensGeometry"
+import {
+  CORE_RADIUS,
+  LENS_RADIUS,
+  LENS_SIZE,
+  RIM_SIZE,
+} from "./heroLensGeometry"
 
 interface Props {
   x: number
@@ -25,8 +30,12 @@ function createDisplacementMap() {
       // Sample inward by up to 7px: the glyph stretches over a convex glass rim.
       const displacement = -7 * Math.sin(Math.PI * t)
       const index = (y * LENS_SIZE + x) * 4
-      pixels.data[index] = Math.round(255 * (0.5 + dx / (radius || 1) * displacement / 32))
-      pixels.data[index + 1] = Math.round(255 * (0.5 + dy / (radius || 1) * displacement / 32))
+      pixels.data[index] = Math.round(
+        255 * (0.5 + ((dx / (radius || 1)) * displacement) / 32),
+      )
+      pixels.data[index + 1] = Math.round(
+        255 * (0.5 + ((dy / (radius || 1)) * displacement) / 32),
+      )
       pixels.data[index + 2] = 128
       pixels.data[index + 3] = 255
     }
@@ -40,31 +49,87 @@ export default function HeroLensRim({ x, y, scale, titleCenter }: Props) {
   const [map] = useState(createDisplacementMap)
   return (
     <>
-      <svg width="0" height="0" className="absolute" aria-hidden="true">
+      <svg
+        width="0"
+        height="0"
+        className="
+          absolute
+        "
+        aria-hidden="true"
+      >
         <defs>
-          <filter id={filterId} filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"
-            x="0" y="0" width={LENS_SIZE} height={LENS_SIZE} colorInterpolationFilters="sRGB">
-            <feImage href={map} x="0" y="0" width={LENS_SIZE} height={LENS_SIZE} result="radialMap" />
-            <feDisplacementMap in="SourceGraphic" in2="radialMap" scale="32"
-              xChannelSelector="R" yChannelSelector="G" />
+          <filter
+            id={filterId}
+            filterUnits="userSpaceOnUse"
+            primitiveUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width={LENS_SIZE}
+            height={LENS_SIZE}
+            colorInterpolationFilters="sRGB"
+          >
+            <feImage
+              href={map}
+              x="0"
+              y="0"
+              width={LENS_SIZE}
+              height={LENS_SIZE}
+              result="radialMap"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="radialMap"
+              scale="32"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
           </filter>
         </defs>
       </svg>
       {/* The mask is outside the filter: displaced pixels can never leak outside
           the ring. A viewport-width replica keeps the original word layout. */}
-      <div data-lens-rim className="absolute" style={{
-        left: x - LENS_RADIUS, top: y - LENS_RADIUS,
-        width: LENS_SIZE, height: LENS_SIZE,
-        maskImage: `radial-gradient(circle, transparent ${CORE_RADIUS}px, black ${CORE_RADIUS}px, black ${LENS_RADIUS}px, transparent ${LENS_RADIUS}px)`,
-      }}>
-        <div style={{ width: LENS_SIZE, height: LENS_SIZE, filter: `url(#${filterId})` }}>
-          <div className="absolute" style={{
-            left: LENS_RADIUS - x, top: LENS_RADIUS - y,
-            width: "100vw", height: "100svh",
-          }}>
-            <div className="absolute inset-x-6 sm:inset-x-10" style={{
-              top: titleCenter, transform: "translateY(-50%)",
-            }}>
+      <div
+        data-lens-rim
+        className="
+          absolute
+        "
+        style={{
+          left: x - LENS_RADIUS,
+          top: y - LENS_RADIUS,
+          width: LENS_SIZE,
+          height: LENS_SIZE,
+          maskImage: `radial-gradient(circle, transparent ${CORE_RADIUS}px, black ${CORE_RADIUS}px, black ${LENS_RADIUS}px, transparent ${LENS_RADIUS}px)`,
+        }}
+      >
+        <div
+          style={{
+            width: LENS_SIZE,
+            height: LENS_SIZE,
+            filter: `url(#${filterId})`,
+          }}
+        >
+          <div
+            className="
+              absolute
+            "
+            style={{
+              left: LENS_RADIUS - x,
+              top: LENS_RADIUS - y,
+              width: "100vw",
+              height: "100svh",
+            }}
+          >
+            <div
+              className="
+                absolute
+                inset-x-6
+                sm:inset-x-10
+              "
+              style={{
+                top: titleCenter,
+                transform: "translateY(-50%)",
+              }}
+            >
               <HeroTitle scale={scale} />
             </div>
           </div>

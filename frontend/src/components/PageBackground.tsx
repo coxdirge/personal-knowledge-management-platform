@@ -27,8 +27,8 @@ export default function PageBackground() {
           backgroundImage: `
             radial-gradient(
               circle,
-              rgba(0,0,0,0.10) 1.4px,
-              transparent 1.4px
+              rgba(0,0,0,0.20) 1px,
+              transparent 1px
             )
           `,
           backgroundSize: "42px 42px",
@@ -47,8 +47,8 @@ export default function PageBackground() {
           backgroundImage: `
             radial-gradient(
               circle,
-              rgba(255,255,255,0.10) 1.4px,
-              transparent 1.4px
+              rgba(160,165,178,0.12) 1px,
+              transparent 1px
             )
           `,
           backgroundSize: "42px 42px",
