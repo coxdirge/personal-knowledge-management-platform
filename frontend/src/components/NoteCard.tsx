@@ -33,6 +33,8 @@ export default function NoteCard({
 
   const [error, setError] = useState<string | null>(null)
 
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
   const [rotation, setRotation] = useState({
     x: 0,
     y: 0,
@@ -51,17 +53,36 @@ export default function NoteCard({
       return
     }
 
+    const normalizedTitle = draftNote.title.trim()
+    const normalizedContent = draftNote.content.trim()
+
+    if (!normalizedTitle) {
+      setError("Title is required")
+      return
+    }
+
+    if (normalizedTitle.length > 120) {
+      setError("Title must be 120 characters or fewer")
+      return
+    }
+
+    if (normalizedContent.length > 10_000) {
+      setError("Content must be 10,000 characters or fewer")
+      return
+    }
+
     try {
       setSaving(true)
       setError(null)
 
       await updateNote(note.id, {
-        title: draftNote.title,
-        content: draftNote.content,
+        title: normalizedTitle,
+        content: normalizedContent,
       })
 
       onUpdated()
 
+      setConfirmingDelete(false)
       setDraftNote(null)
     } catch {
       setError("Failed to update note")
@@ -284,6 +305,7 @@ export default function NoteCard({
               "
             >
               <input
+                maxLength={120}
                 value={draftNote?.title ?? note.title}
                 onChange={event =>
                   setDraftNote(current => ({
@@ -309,6 +331,7 @@ export default function NoteCard({
               />
 
               <textarea
+                maxLength={10_000}
                 value={draftNote?.content ?? note.content}
                 onChange={event =>
                   setDraftNote(current => ({
@@ -338,93 +361,174 @@ export default function NoteCard({
               <div
                 className="
                   mt-3
-                  flex
-                  gap-2
                 "
               >
-                <div
-                  className="
-                    mt-auto
-                    flex
-                    gap-2
-                  "
-                >
-                  <button
-                    type="submit"
-                    disabled={saving}
+                {confirmingDelete ? (
+                  /* ================= DELETE CONFIRMATION ================= */
+                  <div
                     className="
-                      rounded
-                      border
-                      px-3
-                      py-1
-                      dark:bg-white/5
-                      dark:text-zinc-100
-                      dark:border-white/15
-                      dark:hover:bg-white/10
-                      dark:focus-visible:outline-2
-                      dark:focus-visible:outline-white/40
-                      dark:disabled:opacity-40
-                      dark:disabled:hover:bg-white/5
+                      flex
+                      items-center
+                      justify-between
+                      gap-3
                     "
                   >
-                    {saving ? "Saving..." : "Save"}
-                  </button>
+                    <p
+                      className="
+                        text-sm
+                        text-red-600
 
-                  <button
-                    type="button"
-                    onClick={event => {
-                      event.stopPropagation()
-                      setDraftNote(null)
-                    }}
-                    className="
-                      rounded
-                      border
-                      px-3
-                      py-1
-                      dark:bg-white/5
-                      dark:text-zinc-100
-                      dark:border-white/15
-                      dark:hover:bg-white/10
-                      dark:focus-visible:outline-2
-                      dark:focus-visible:outline-white/40
-                      dark:disabled:opacity-40
-                      dark:disabled:hover:bg-white/5
-                    "
-                  >
-                    Cancel
-                  </button>
+                        dark:text-red-400
+                      "
+                    >
+                      Delete note?
+                    </p>
 
-                  <button
-                    type="button"
-                    disabled={deleting}
-                    onClick={event => {
-                      event.stopPropagation()
-                      handleDelete()
-                    }}
+                    <div
+                      className="
+                        flex
+                        shrink-0
+                        gap-2
+                      "
+                    >
+                      <button
+                        type="button"
+                        disabled={deleting}
+                        onClick={event => {
+                          event.stopPropagation()
+                          setConfirmingDelete(false)
+                        }}
+                        className="
+                          rounded
+                          border
+                          px-3
+                          py-1
+
+                          dark:bg-white/5
+                          dark:text-zinc-100
+                          dark:border-white/15
+                          dark:hover:bg-white/10
+
+                          disabled:opacity-40
+                        "
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={deleting}
+                        onClick={event => {
+                          event.stopPropagation()
+                          handleDelete()
+                        }}
+                        className="
+                          rounded
+                          border
+                          px-3
+                          py-1
+                          text-red-600
+
+                          dark:bg-white/5
+                          dark:text-red-400
+                          dark:border-red-400/30
+                          dark:hover:bg-red-400/10
+
+                          disabled:opacity-40
+                        "
+                      >
+                        {deleting ? "Deleting..." : "Confirm"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* ================= EDIT ACTIONS ================= */
+                  <div
                     className="
-                      rounded
-                      border
-                      px-3
-                      py-1
-                      dark:bg-white/5
-                      dark:text-red-400
-                      dark:border-white/15
-                      dark:hover:bg-white/10
-                      dark:focus-visible:outline-2
-                      dark:focus-visible:outline-white/40
-                      dark:disabled:opacity-40
-                      dark:disabled:hover:bg-white/5
+                      flex
+                      gap-2
                     "
                   >
-                    {deleting ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="
+                        rounded
+                        border
+                        px-3
+                        py-1
+
+                        dark:bg-white/5
+                        dark:text-zinc-100
+                        dark:border-white/15
+                        dark:hover:bg-white/10
+
+                        disabled:opacity-40
+                      "
+                    >
+                      {saving ? "Saving..." : "Save"}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={event => {
+                        event.stopPropagation()
+
+                        setConfirmingDelete(false)
+                        setDraftNote(null)
+                      }}
+                      className="
+                        rounded
+                        border
+                        px-3
+                        py-1
+
+                        dark:bg-white/5
+                        dark:text-zinc-100
+                        dark:border-white/15
+                        dark:hover:bg-white/10
+
+                        disabled:opacity-40
+                      "
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={event => {
+                        event.stopPropagation()
+                        setConfirmingDelete(true)
+                      }}
+                      className="
+                        rounded
+                        border
+                        px-3
+                        py-1
+                        text-red-600
+
+                        dark:bg-white/5
+                        dark:text-red-400
+                        dark:border-white/15
+                        dark:hover:bg-white/10
+
+                        disabled:opacity-40
+                      "
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
 
                 {error && (
                   <p
                     className="
                       mt-2
+                      text-sm
                       text-red-600
+
                       dark:text-red-400
                     "
                   >

@@ -2,12 +2,49 @@ package service
 
 import (
 	"errors"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/dto"
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/model"
 	"github.com/coxdirge/personal-knowledge-management-platform/backend/internal/repository"
 	"gorm.io/gorm"
 )
+
+const (
+	maxNoteTitleLength   = 120
+	maxNoteContentLength = 10_000
+)
+
+func normalizeAndValidateTitle(
+	title string,
+) (string, error) {
+
+	title = strings.TrimSpace(title)
+
+	if title == "" {
+		return "", ErrNoteTitleRequired
+	}
+
+	if utf8.RuneCountInString(title) > maxNoteTitleLength {
+		return "", ErrNoteTitleTooLong
+	}
+
+	return title, nil
+}
+
+func normalizeAndValidateContent(
+	content string,
+) (string, error) {
+
+	content = strings.TrimSpace(content)
+
+	if utf8.RuneCountInString(content) > maxNoteContentLength {
+		return "", ErrNoteContentTooLong
+	}
+
+	return content, nil
+}
 
 type NoteService struct {
 	Repo *repository.NoteRepository
@@ -27,12 +64,24 @@ func (s *NoteService) CreateNote(
 	req dto.CreateNoteRequest,
 ) (*model.Note, error) {
 
-	note := &model.Note{
-		Title:   req.Title,
-		Content: req.Content,
+	title, err := normalizeAndValidateTitle(req.Title)
+
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.Repo.Create(note)
+	content, err := normalizeAndValidateContent(req.Content)
+
+	if err != nil {
+		return nil, err
+	}
+
+	note := &model.Note{
+		Title:   title,
+		Content: content,
+	}
+
+	err = s.Repo.Create(note)
 
 	if err != nil {
 		return nil, err
@@ -78,6 +127,11 @@ func (s *NoteService) UpdateNote(
 	note, err := s.Repo.FindByID(id)
 
 	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNoteNotFound
+		}
+
 		return nil, err
 	}
 
@@ -86,11 +140,23 @@ func (s *NoteService) UpdateNote(
 	}
 
 	if req.Title != nil {
-		note.Title = *req.Title
+		title, err := normalizeAndValidateTitle(*req.Title)
+
+		if err != nil {
+			return nil, err
+		}
+
+		note.Title = title
 	}
 
 	if req.Content != nil {
-		note.Content = *req.Content
+		content, err := normalizeAndValidateContent(*req.Content)
+
+		if err != nil {
+			return nil, err
+		}
+
+		note.Content = content
 	}
 
 	err = s.Repo.Update(note)

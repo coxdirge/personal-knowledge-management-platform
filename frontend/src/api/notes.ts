@@ -30,7 +30,9 @@ export async function createNote(data: CreateNoteRequest) {
     throw new Error("failed to create note")
   }
 
-  return await response.json()
+  const result: ApiResponse<Note> = await response.json()
+
+  return result.data
 }
 
 export async function updateNote(

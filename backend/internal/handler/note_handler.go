@@ -1,3 +1,4 @@
+// Package handler handles HTTP requests and dispatches business logic to service layer.
 package handler
 
 import (
@@ -26,6 +27,13 @@ func NewNoteHandler(
 
 }
 
+func isNoteValidationError(err error) bool {
+	return errors.Is(err, service.ErrNoUpdateFields) ||
+		errors.Is(err, service.ErrNoteTitleRequired) ||
+		errors.Is(err, service.ErrNoteTitleTooLong) ||
+		errors.Is(err, service.ErrNoteContentTooLong)
+}
+
 func (h *NoteHandler) CreateNote(c *gin.Context) {
 
 	var req dto.CreateNoteRequest
@@ -45,10 +53,21 @@ func (h *NoteHandler) CreateNote(c *gin.Context) {
 
 	if err != nil {
 
+		if isNoteValidationError(err) {
+
+			response.Error(
+				c,
+				http.StatusBadRequest,
+				err.Error(),
+			)
+
+			return
+		}
+
 		response.Error(
 			c,
 			http.StatusInternalServerError,
-			err.Error(),
+			"internal server error",
 		)
 
 		return
@@ -184,10 +203,19 @@ func (h *NoteHandler) UpdateNote(c *gin.Context) {
 
 	if err != nil {
 
-		if errors.Is(
-			err,
-			service.ErrNoUpdateFields,
-		) {
+		if errors.Is(err, service.ErrNoteNotFound) {
+
+			response.Error(
+				c,
+				http.StatusNotFound,
+				err.Error(),
+			)
+
+			return
+		}
+
+		if isNoteValidationError(err) {
+
 			response.Error(
 				c,
 				http.StatusBadRequest,
@@ -200,7 +228,7 @@ func (h *NoteHandler) UpdateNote(c *gin.Context) {
 		response.Error(
 			c,
 			http.StatusInternalServerError,
-			err.Error(),
+			"internal server error",
 		)
 
 		return

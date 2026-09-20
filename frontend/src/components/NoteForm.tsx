@@ -1,11 +1,12 @@
 import { useState } from "react"
 
 import type { SubmitEventHandler } from "react"
+import type { Note } from "../types/note"
 
 import { createNote } from "../api/notes"
 
 interface Props {
-  onCreated: () => void
+  onCreated: (note: Note) => Promise<void>
 }
 
 export default function NoteForm({ onCreated }: Props) {
@@ -15,26 +16,60 @@ export default function NoteForm({ onCreated }: Props) {
 
   const [isOpen, setIsOpen] = useState(false)
 
+  const [submitting, setSubmitting] = useState(false)
+
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = async event => {
     event.preventDefault()
 
-    await createNote({
-      title,
-      content,
-    })
+    const normalizedTitle = title.trim()
+    const normalizedContent = content.trim()
 
-    setTitle("")
-    setContent("")
-    setIsOpen(false)
+    if (!normalizedTitle) {
+      setSubmitError("Title is required")
+      return
+    }
 
-    onCreated()
+    if (normalizedTitle.length > 120) {
+      setSubmitError("Title must be 120 characters or less")
+      return
+    }
+
+    if (normalizedContent.length > 10_000) {
+      setSubmitError("Content must be 10,000 characters or less")
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      setSubmitError(null)
+
+      const createdNote = await createNote({
+        title: normalizedTitle,
+        content: normalizedContent,
+      })
+
+      setTitle("")
+      setContent("")
+      setIsOpen(false)
+
+      await onCreated(createdNote)
+    } catch {
+      setSubmitError("Failed to create note")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!isOpen) {
     return (
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setSubmitError(null)
+          setIsOpen(true)
+        }}
         className="
           rounded-full
           border
@@ -82,6 +117,8 @@ export default function NoteForm({ onCreated }: Props) {
     >
       <input
         value={title}
+        maxLength={120}
+        disabled={submitting}
         onChange={event => setTitle(event.target.value)}
         placeholder="Title"
         className="
@@ -106,6 +143,8 @@ export default function NoteForm({ onCreated }: Props) {
 
       <textarea
         value={content}
+        maxLength={10_000}
+        disabled={submitting}
         onChange={event => setContent(event.target.value)}
         placeholder="Content"
         className="
@@ -130,6 +169,18 @@ export default function NoteForm({ onCreated }: Props) {
         "
       />
 
+      {submitError && (
+        <p
+          className="
+          text-sm
+          text-red-600
+          dark:text-red-400
+          "
+        >
+          {submitError}
+        </p>
+      )}
+
       <div
         className="
           flex
@@ -139,9 +190,11 @@ export default function NoteForm({ onCreated }: Props) {
       >
         <button
           type="button"
+          disabled={submitting}
           onClick={() => {
             setTitle("")
             setContent("")
+            setSubmitError(null)
             setIsOpen(false)
           }}
           className="
@@ -164,6 +217,7 @@ export default function NoteForm({ onCreated }: Props) {
 
         <button
           type="submit"
+          disabled={submitting}
           className="
             rounded-lg
             bg-black
@@ -182,7 +236,7 @@ export default function NoteForm({ onCreated }: Props) {
             hover:bg-gray-800
           "
         >
-          Create
+          {submitting ? "Creating..." : "Create"}
         </button>
       </div>
     </form>

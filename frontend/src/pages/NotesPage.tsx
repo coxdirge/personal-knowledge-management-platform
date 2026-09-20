@@ -48,6 +48,15 @@ export default function NotesPage() {
     }
   }, [])
 
+  const handleNoteCreated = useCallback(
+    async (note: Note) => {
+      await fetchNotes()
+
+      setSelectNoteId(note.id)
+    },
+    [fetchNotes],
+  )
+
   useEffect(() => {
     const loadNotes = async () => {
       try {
@@ -220,7 +229,7 @@ export default function NotesPage() {
                 My Notes
               </h2>
 
-              <NoteForm onCreated={fetchNotes} />
+              <NoteForm onCreated={handleNoteCreated} />
             </div>
 
             {/* Bounded vertical spacing keeps cards close to the heading on tall screens. */}
@@ -232,130 +241,175 @@ export default function NotesPage() {
                 min-w-0
               "
             >
-              <button
-                type="button"
-                onClick={selectPrevNote}
-                disabled={notes.length === 0 || selectedNoteIndex === 0}
-                className="
-                  absolute
-                  left-4
-                  top-1/2
-                  z-20
-                  -translate-y-1/2
-                  rounded-full
-                  border
-                  bg-white/80
-                  dark:bg-[#14161c]/80
-                  dark:text-zinc-100
-                  dark:border-white/15
-                  dark:shadow-black/30
-                  dark:hover:bg-white/10
-                  dark:focus-visible:outline-2
-                  dark:focus-visible:outline-white/40
-                  px-4
-                  py-3
-                  text-xl
-                  shadow-md
-                  backdrop-blur
-                  transition
-                  hover:scale-105
-                  disabled:cursor-not-allowed
-                  disabled:opacity-30
-                "
-              >
-                {/*&lt;-*/}
-                {"<-"}
-              </button>
-
-              <div
-                ref={carouselRef}
-                style={{ overflowAnchor: "none" }}
-                className="
-                  w-full
-                  max-w-full
-                  overflow-x-auto
-                  overflow-y-hidden
-                "
-              >
+              {notes.length === 0 ? (
+                /* ================= EMPTY STATE ================= */
                 <div
                   className="
-                    relative
                     flex
                     min-h-[clamp(20rem,38svh,26rem)]
-                    w-max
-                    min-w-full
                     items-center
                     justify-center
-                    gap-6
-                    py-16
                   "
-                  style={{
-                    paddingInline: "max(2rem, calc(50% - 10rem))",
-                  }}
                 >
-                  {notes.map((note, index) => {
-                    const distance = index - selectedNoteIndex
+                  <div
+                    className="
+                      text-center
+                    "
+                  >
+                    <h3
+                      className="
+                        text-lg
+                        font-medium
 
-                    return (
-                      // 20rem slot owns card width; track end padding uses its 10rem half-width.
-                      <div
-                        key={note.id}
-                        data-note-id={note.id}
-                        className="
-                          w-80
-                          shrink-0
-                        "
-                      >
-                        <NoteCard
-                          note={note}
-                          onUpdated={fetchNotes}
-                          onDeleted={fetchNotes}
-                          selected={activeNoteId === note.id}
-                          distance={distance}
-                          onSelect={() => setSelectNoteId(note.id)}
-                        />
-                      </div>
-                    )
-                  })}
+                        dark:text-zinc-100
+                      "
+                    >
+                      No notes yet.
+                    </h3>
+
+                    <p
+                      className="
+                        mt-2
+                        text-sm
+                        text-gray-500
+
+                        dark:text-zinc-400
+                      "
+                    >
+                      Create your first note to get started.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* ================= PREVIOUS NOTE ================= */}
+                  <button
+                    type="button"
+                    onClick={selectPrevNote}
+                    disabled={selectedNoteIndex === 0}
+                    className="
+                      absolute
+                      left-4
+                      top-1/2
+                      z-20
+                      -translate-y-1/2
+                      rounded-full
+                      border
+                      bg-white/80
 
-              <button
-                type="button"
-                onClick={selectNextNote}
-                disabled={
-                  notes.length === 0 || selectedNoteIndex === notes.length - 1
-                }
-                className="
-                  absolute
-                  right-4
-                  top-1/2
-                  z-20
-                  -translate-y-1/2
-                  rounded-full
-                  border
-                  bg-white/80
-                  dark:bg-[#14161c]/80
-                  dark:text-zinc-100
-                  dark:border-white/15
-                  dark:shadow-black/30
-                  dark:hover:bg-white/10
-                  dark:focus-visible:outline-2
-                  dark:focus-visible:outline-white/40
-                  px-4
-                  py-3
-                  text-xl
-                  shadow-md
-                  backdrop-blur
-                  transition
-                  hover:scale-105
-                  disabled:cursor-not-allowed
-                  disabled:opacity-30
-                "
-              >
-                {/*-&gt;*/}
-                {"->"}
-              </button>
+                      dark:bg-[#14161c]/80
+                      dark:text-zinc-100
+                      dark:border-white/15
+                      dark:shadow-black/30
+                      dark:hover:bg-white/10
+                      dark:focus-visible:outline-2
+                      dark:focus-visible:outline-white/40
+
+                      px-4
+                      py-3
+                      text-xl
+                      shadow-md
+                      backdrop-blur
+                      transition
+                      hover:scale-105
+                      disabled:cursor-not-allowed
+                      disabled:opacity-30
+                    "
+                  >
+                    {"<-"}
+                  </button>
+
+                  {/* ================= NOTES CAROUSEL ================= */}
+                  <div
+                    ref={carouselRef}
+                    style={{ overflowAnchor: "none" }}
+                    className="
+                      w-full
+                      max-w-full
+                      overflow-x-auto
+                      overflow-y-hidden
+                    "
+                  >
+                    <div
+                      className="
+                        relative
+                        flex
+                        min-h-[clamp(20rem,38svh,26rem)]
+                        w-max
+                        min-w-full
+                        items-center
+                        justify-center
+                        gap-6
+                        py-16
+                      "
+                      style={{
+                        paddingInline: "max(2rem, calc(50% - 10rem))",
+                      }}
+                    >
+                      {notes.map((note, index) => {
+                        const distance = index - selectedNoteIndex
+
+                        return (
+                          <div
+                            key={note.id}
+                            data-note-id={note.id}
+                            className="
+                              w-80
+                              shrink-0
+                            "
+                          >
+                            <NoteCard
+                              note={note}
+                              onUpdated={fetchNotes}
+                              onDeleted={fetchNotes}
+                              selected={activeNoteId === note.id}
+                              distance={distance}
+                              onSelect={() => setSelectNoteId(note.id)}
+                            />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* ================= NEXT NOTE ================= */}
+                  <button
+                    type="button"
+                    onClick={selectNextNote}
+                    disabled={selectedNoteIndex === notes.length - 1}
+                    className="
+                      absolute
+                      right-4
+                      top-1/2
+                      z-20
+                      -translate-y-1/2
+                      rounded-full
+                      border
+                      bg-white/80
+
+                      dark:bg-[#14161c]/80
+                      dark:text-zinc-100
+                      dark:border-white/15
+                      dark:shadow-black/30
+                      dark:hover:bg-white/10
+                      dark:focus-visible:outline-2
+                      dark:focus-visible:outline-white/40
+
+                      px-4
+                      py-3
+                      text-xl
+                      shadow-md
+                      backdrop-blur
+                      transition
+                      hover:scale-105
+                      disabled:cursor-not-allowed
+                      disabled:opacity-30
+                    "
+                  >
+                    {"->"}
+                  </button>
+                </>
+              )}
             </div>
           </section>
         </Hero>

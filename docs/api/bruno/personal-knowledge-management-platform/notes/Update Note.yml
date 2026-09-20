@@ -5,7 +5,7 @@ info:
 
 http:
   method: PUT
-  url: "{{baseUrl}}/api/notes/6"
+  url: "{{baseUrl}}/api/notes/16"
   body:
     type: json
     data: |-
@@ -20,3 +20,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
