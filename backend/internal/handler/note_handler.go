@@ -83,14 +83,16 @@ func (h *NoteHandler) CreateNote(c *gin.Context) {
 
 func (h *NoteHandler) GetNotes(c *gin.Context) {
 
-	notes, err := h.Service.GetNotes()
+	query := c.Query("q")
+
+	notes, err := h.Service.GetNotes(query)
 
 	if err != nil {
 
 		response.Error(
 			c,
 			http.StatusInternalServerError,
-			err.Error(),
+			"internal server error",
 		)
 
 		return

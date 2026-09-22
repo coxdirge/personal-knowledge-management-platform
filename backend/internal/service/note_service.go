@@ -91,12 +91,20 @@ func (s *NoteService) CreateNote(
 
 }
 
-func (s *NoteService) GetNotes() (
+func (s *NoteService) GetNotes(
+	query string,
+) (
 	[]model.Note,
 	error,
 ) {
 
-	return s.Repo.FindAll()
+	query = strings.TrimSpace(query)
+
+	if query == "" {
+		return s.Repo.FindAll()
+	}
+
+	return s.Repo.Search(query)
 
 }
 

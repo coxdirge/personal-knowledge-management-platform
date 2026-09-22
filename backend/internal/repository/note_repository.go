@@ -33,6 +33,23 @@ func (r *NoteRepository) FindAll() ([]model.Note, error) {
 	return notes, err
 }
 
+func (r *NoteRepository) Search(
+	query string,
+) ([]model.Note, error) {
+
+	var notes []model.Note
+
+	pattern := "%" + query + "%"
+
+	err := r.DB.
+		Where("title LIKE ? OR content LIKE ?", pattern, pattern).
+		Order("updated_at DESC").
+		Find(&notes).
+		Error
+
+	return notes, err
+}
+
 func (r *NoteRepository) FindByID(id uint) (*model.Note, error) {
 
 	var note model.Note
