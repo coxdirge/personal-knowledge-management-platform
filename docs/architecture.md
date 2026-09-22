@@ -1,219 +1,201 @@
-# Architecture Design
+# Architecture
 
 ## Overview
 
-Personal Knowledge Management Platform 采用前后端分离架构。
+PKMP currently follows a simple layered architecture.
 
-整体结构：
-
+```text
 Browser
-    |
-    |
-React Frontend
-    |
- HTTP / REST API
-    |
-Gin Backend
-    |
- PostgreSQL
-
-
-系统主要分为：
-
-- Frontend Layer
-- Backend Layer
-- Persistence Layer
-
----
-
-# Frontend Architecture
-
-## Responsibilities
-
-Frontend 负责：
-
-- 用户交互
-- 页面渲染
-- 状态管理
-- API调用
-- 用户体验
-
-
-技术：
-
-- React
-- TypeScript
-- Tailwind CSS
-
-
-目录：
-
-frontend/
-
-src/
-
-├── components/
-├── pages/
-├── hooks/
-├── services/
-├── stores/
-└── utils/
-
-
-说明：
-
-components:
-可复用UI组件
-
-
-pages:
-页面级组件
-
-
-services:
-封装后端API请求
-
-
-hooks:
-React逻辑复用
-
-
----
-
-# Backend Architecture
-
-
-Backend采用分层设计。
-
-
-Request Flow:
-
-Client
-
-↓
-
-Router
-
-↓
-
-Middleware
-
-↓
-
-Handler
-
-↓
-
+  |
+  | HTTP
+  v
+Nginx
+  |
+  | /api/*
+  v
+Gin Handler
+  |
+  v
 Service
-
-↓
-
+  |
+  v
 Repository
+  |
+  v
+PostgreSQL
+```
 
-↓
+The frontend communicates with the backend through relative `/api` paths.
 
-Database
+In development:
 
+```text
+Browser
+  -> Vite
+  -> Vite proxy
+  -> Go backend
+```
 
+In the Docker environment:
 
-## Handler Layer
+```text
+Browser
+  -> Nginx
+  -> backend:8080
+```
 
-职责：
+This allows frontend code to remain independent of the physical backend
+address.
 
-HTTP协议相关逻辑。
+## Backend Layers
 
+### Handler
 
-例如：
+Responsibilities:
 
-- 参数解析
-- 请求验证
-- 返回JSON
+- HTTP request parsing
+- path/query parameter parsing
+- DTO binding
+- mapping service errors to HTTP status codes
+- response serialization
 
+The handler should not contain database logic.
 
-不负责：
+### Service
 
-- 复杂业务逻辑
+Responsibilities:
 
+- business validation
+- normalization
+- application semantics
+- translating infrastructure errors into domain/application errors
 
----
+Examples include:
 
-## Service Layer
+- trimming note fields
+- rejecting empty titles
+- enforcing field length limits
+- translating missing database rows into `ErrNoteNotFound`
 
+### Repository
 
-职责：
+Responsibilities:
 
-业务逻辑。
+- persistence
+- GORM queries
+- PostgreSQL interaction
 
+The repository does not decide HTTP semantics.
 
-例如：
+## Note Update Semantics
 
-创建笔记：
+Update DTO fields use pointers.
 
-1. 验证用户权限
-2. 检查数据合法性
-3. 调用Repository保存
+Conceptually:
 
+```text
+nil
+= field was omitted
 
----
+non-nil ""
+= caller explicitly provided an empty value
+```
 
-## Repository Layer
+This distinction is required for partial updates.
 
+For example:
 
-职责：
+```text
+Title: nil
+```
 
-数据访问。
+means:
 
+> Do not modify the title.
 
-负责：
+while:
 
-- SQL
-- ORM操作
-- 数据查询
+```text
+Title: pointer("")
+```
 
+means:
 
-业务代码不直接操作数据库。
+> Explicitly set the title to an empty value.
 
+The latter is rejected by service validation.
 
----
+## Search
 
-# Why Layered Architecture?
+The notes endpoint supports:
 
-原因：
+```text
+GET /api/notes?q=keyword
+```
 
-避免代码耦合。
+A blank query returns all notes.
 
-如果所有逻辑写在Handler：
+A non-empty query performs case-insensitive matching against note title and
+content.
 
-问题：
+Results are ordered by `updated_at DESC`.
 
-- 难测试
-- 难修改
-- 难扩展
+## Docker Topology
 
+```text
+Host
+ |
+ | :80
+ v
+frontend container
+ |
+ | Nginx reverse proxy
+ v
+backend:8080
+ |
+ v
+postgres:5432
+ |
+ v
+postgres_data volume
+```
 
-分层以后：
+Docker Compose provides internal DNS.
 
-业务逻辑独立于具体数据库实现。
+Therefore:
 
----
+```text
+DB_HOST=postgres
+```
 
-# Future Evolution
+refers to the PostgreSQL service.
 
-当前：
+Inside the backend container:
 
-单体架构。
+```text
+localhost
+```
 
+would refer to the backend container itself, not PostgreSQL.
 
-未来可能：
+## Persistent Data
 
-Backend Service
+The PostgreSQL container stores its database files in a named Docker volume:
 
-拆分：
+```text
+postgres_data
+```
 
-Auth Service
+Container lifetime and data lifetime are therefore independent.
 
-Note Service
+```bash
+docker compose down
+```
 
-Search Service
+removes containers but preserves the volume.
 
+```bash
+docker compose down -v
+```
 
+also removes persistent database data.

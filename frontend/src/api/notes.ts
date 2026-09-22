@@ -1,10 +1,20 @@
 import type { ApiResponse } from "../types/api"
 import type { Note, CreateNoteRequest, UpdateNoteRequest } from "../types/note"
 
-const API_BASE_URL = "http://localhost:8080/api"
+const API_BASE_URL = "/api"
 
-export async function getNotes(): Promise<Note[]> {
-  const response = await fetch(`${API_BASE_URL}/notes`)
+export async function getNotes(query = ""): Promise<Note[]> {
+  const params = new URLSearchParams()
+
+  if (query.trim()) {
+    params.set("q", query.trim())
+  }
+
+  const url = params.size
+    ? `${API_BASE_URL}/notes?${params.toString()}`
+    : `${API_BASE_URL}/notes`
+
+  const response = await fetch(url)
 
   if (!response.ok) {
     throw new Error("failed to fetch notes")

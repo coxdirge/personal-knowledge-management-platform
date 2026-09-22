@@ -32,37 +32,84 @@ export default function NotesPage() {
 
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  const fetchNotes = useCallback(async () => {
+  const [searchInput, setSearchInput] = useState("")
+
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const [searching, setSearching] = useState(false)
+
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  const fetchNotes = useCallback(async (query: string) => {
     try {
-      const data = await getNotes()
+      const data = await getNotes(query)
 
       setNotes(data)
+
       setSelectNoteId(current =>
         data.some(note => note.id === current)
           ? current
           : (data[0]?.id ?? null),
       )
+
       setError(null)
     } catch {
       setError("Failed to load notes")
     }
   }, [])
 
+  const refreshNotes = useCallback(async () => {
+    await fetchNotes(searchQuery)
+  }, [fetchNotes, searchQuery])
+
   const handleNoteCreated = useCallback(
     async (note: Note) => {
-      await fetchNotes()
+      await refreshNotes()
 
       setSelectNoteId(note.id)
     },
-    [fetchNotes],
+    [refreshNotes],
   )
+
+  const handleSearch = useCallback(async () => {
+    const query = searchInput.trim()
+
+    try {
+      setSearching(true)
+      setSearchError(null)
+
+      await fetchNotes(query)
+
+      setSearchQuery(query)
+    } catch {
+      setSearchError("Failed to search notes")
+    } finally {
+      setSearching(false)
+    }
+  }, [fetchNotes, searchInput])
+
+  const handleClearSearch = useCallback(async () => {
+    try {
+      setSearching(true)
+      setSearchError(null)
+
+      await fetchNotes("")
+
+      setSearchInput("")
+      setSearchQuery("")
+    } catch {
+      setSearchError("Failed to load notes")
+    } finally {
+      setSearching(false)
+    }
+  }, [fetchNotes])
 
   useEffect(() => {
     const loadNotes = async () => {
       try {
         setLoading(true)
 
-        await fetchNotes()
+        await fetchNotes("")
       } finally {
         setLoading(false)
       }
@@ -214,20 +261,90 @@ export default function NotesPage() {
                 flex
                 items-center
                 justify-between
+                gap-4
                 px-2
                 sm:px-8
               "
             >
               <h2
                 className="
+                  shrink-0
                   text-2xl
                   font-semibold
                   tracking-tight
+
                   dark:text-zinc-100
                 "
               >
                 My Notes
               </h2>
+
+              {/* ================= SEARCH ================= */}
+              <div
+                className="
+                  flex
+                  w-full
+                  max-w-md
+                  items-center
+                  gap-2
+                "
+              >
+                <input
+                  type="search"
+                  value={searchInput}
+                  disabled={searching}
+                  onChange={event => setSearchInput(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === "Enter") {
+                      handleSearch()
+                    }
+                  }}
+                  placeholder="Search notes..."
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    bg-white/70
+                    px-3
+                    py-2
+                    text-sm
+                    outline-none
+                    backdrop-blur
+
+                    focus:ring-2
+                    focus:ring-black/10
+
+                    dark:bg-[#14161c]/80
+                    dark:text-zinc-100
+                    dark:border-white/15
+                    dark:placeholder:text-zinc-400
+                    dark:focus:ring-white/15
+                  "
+                />
+
+                {searchInput && (
+                  <button
+                    type="button"
+                    disabled={searching}
+                    onClick={handleClearSearch}
+                    className="
+                      rounded-xl
+                      border
+                      bg-white/70
+                      px-3
+                      py-2
+                      text-sm
+
+                      dark:bg-[#14161c]/80
+                      dark:text-zinc-300
+                      dark:border-white/15
+                      dark:hover:bg-white/10
+                    "
+                  >
+                    {searching ? "..." : "Clear"}
+                  </button>
+                )}
+              </div>
 
               <NoteForm onCreated={handleNoteCreated} />
             </div>
@@ -242,7 +359,6 @@ export default function NotesPage() {
               "
             >
               {notes.length === 0 ? (
-                /* ================= EMPTY STATE ================= */
                 <div
                   className="
                     flex
@@ -264,7 +380,7 @@ export default function NotesPage() {
                         dark:text-zinc-100
                       "
                     >
-                      No notes yet.
+                      {searchQuery ? "No notes found." : "No notes yet."}
                     </h3>
 
                     <p
@@ -276,8 +392,23 @@ export default function NotesPage() {
                         dark:text-zinc-400
                       "
                     >
-                      Create your first note to get started.
+                      {searchQuery
+                        ? "Try a different search."
+                        : "Create your first note to get started."}
                     </p>
+
+                    {searchError && (
+                      <p
+                        className="
+                          mt-2
+                          text-sm
+                          text-red-600
+                          dark:text-red-400
+                        "
+                      >
+                        {searchError}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -360,8 +491,8 @@ export default function NotesPage() {
                           >
                             <NoteCard
                               note={note}
-                              onUpdated={fetchNotes}
-                              onDeleted={fetchNotes}
+                              onUpdated={refreshNotes}
+                              onDeleted={refreshNotes}
                               selected={activeNoteId === note.id}
                               distance={distance}
                               onSelect={() => setSelectNoteId(note.id)}
