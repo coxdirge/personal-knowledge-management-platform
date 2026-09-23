@@ -5,6 +5,9 @@ frontend/dist/
 # Backend
 backend/bin/
 
+# docs
+docs/steps.md
+
 # Environment
 .env
 *.env
